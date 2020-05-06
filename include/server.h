@@ -9,7 +9,7 @@ typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
 
 int setup_sever(short port, int backlog){
-	int server_socket, client_socket, addr_size;
+	int server_socket;
 	SA_IN server_addr;
 
 	check((server_socket = socket(AF_INET, SOCK_STREAM, 0)), "Failed to create socket.");
@@ -39,9 +39,7 @@ int accept_new_connection(int server_socket){
 
 
 void * handel_connection(int client_socket){
-	int c;
 	char buf[BUFSIZE];
-	// FILE* f = fdopen(client_socket, "r");
 
     bzero(&buf, sizeof(buf));
     
@@ -65,5 +63,6 @@ void * handel_connection(int client_socket){
     file_reader(buf, client_socket);
 
     close(client_socket);
-}
 
+    return NULL;
+}

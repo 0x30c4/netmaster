@@ -1,4 +1,5 @@
-#include "lib/server.h"
+#include "include/server.h"
+// #include "include/common.h"
 
 int main(int argc, char const *argv[]){
 	int server_socket = setup_sever(SERVERPORT, SERVER_BACKLOG);
