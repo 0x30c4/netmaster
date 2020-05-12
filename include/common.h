@@ -13,7 +13,9 @@
 #include <sys/stat.h>                                                                                                                          
 #include <fcntl.h>
 #include <sys/sysmacros.h>
+#include <pthread.h>
 #include <errno.h>
 
 #define BUFSIZE 4096
-#define SOCKETERROR (-1)
+
+#endif

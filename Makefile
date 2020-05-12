@@ -1,7 +1,25 @@
-CC=gcc
+CC = gcc
+CFLAGS = -Wall -c
 
-tcps: server.c 
-	$(CC) -o tcps server.c
+all: output rmdotos
 
-# tcps: .c 
-# 	$(CC) -o tcps server.c
+run: 
+	./tcps
+
+output: master.o server.o err.o
+	$(CC) -pthread master.o server.o err.o -o tcps
+
+master.o: master.c
+	$(CC) $(CFLAGS) -Iinclude master.c
+
+server.o: include/server.c include/server.h
+	$(CC) $(CFLAGS) include/server.c
+
+err.o: include/err.c include/err.h
+	$(CC) $(CFLAGS) include/err.c
+
+clean:
+	rm -rf *o tcps
+
+rmdotos:
+	rm -fr *.o
