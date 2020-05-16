@@ -2,4 +2,5 @@
 
 #define SOCKETERROR (-1)
 
-check(int, const char *);
+int check(int, const char *);
+// int checkIfNull(void *, const char *)

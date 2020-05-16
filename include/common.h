@@ -16,6 +16,35 @@
 #include <pthread.h>
 #include <errno.h>
 
-#define BUFSIZE 4096
+// defining the end of header terminators .
+#define EOHL "\r\n" // End Of Header Line.
+#define EOH  "\r\n\r\n" // End Of Header.
+
+// defining the end of Request terminators .
+#define EORL "\n" // End Of Request Line.
+#define EOR  "\n\n" // End Of Request.
+
+// defining the headers
+#define GET "GET"
+#define POST "POST"
+
+#define BUFSIZE 4096 // Buffer size.
+
+// Defining true and false. 
+#define TRUE 1 
+#define FALSE 0
+
+//Bash colors and other formatting.
+
+//Colors
+#define RED "\e[31m"
+#define GREEN "\e[32m"
+#define LIGHTGREEN "\e[32m"
+
+//Formats.
+#define RESETALL "\e[0m"
+#define BOLD "\e[1m"
+#define UNDERLINE "\e[4m"
+#define BLINK "\e[5m"
 
 #endif
