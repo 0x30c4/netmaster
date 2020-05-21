@@ -38,11 +38,48 @@ int startsWith(const char *str, const char *substart){
     return 1;
 }
 
-// char * findChar(const char *str, const char *delimiter){
-//     // int _str_len = strlen(str);
-//     // for (int i = 0; i < _str_len - 1; ++i){
-//     //     if (str[i] == delimiter){
+char **split(const char *str, const char *d, int *len){
+    char _str[4096];
+    char** result = 0;
+    char *rest = NULL;
+    char *token;
+    int count = 0;
+    strncpy(_str, str, strlen(str));
 
-//     //     }
-//     // }
-// }
+    for (token = strtok_r(_str, d, &rest);
+        token != NULL;
+        token = strtok_r(NULL, d, &rest)){
+        // printf("%s\n", token);
+        count++;
+    }   
+
+    strncpy(_str, str, strlen(str));
+    result = malloc(sizeof(char*) * count + 1);
+
+    if (result){
+        size_t idx  = 0;
+
+        // *(result + idx++) = "hello";
+
+        for (token = strtok_r(_str, d, &rest);
+            token != NULL;
+            token = strtok_r(NULL, d, &rest)){
+            
+            if (idx < count){
+                *(result + idx++) = strdup(token);
+            }
+        }
+
+    }
+    *len = count;
+    return result;
+}
+
+
+void slice_str(const char * str, char * buffer, size_t start, size_t end){
+    size_t j = 0;
+    for ( size_t i = start; i <= end; ++i ) {
+        buffer[j++] = str[i];
+    }
+    buffer[j] = 0;
+}

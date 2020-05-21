@@ -9,7 +9,10 @@ const char CLOSE_GET_POST[17] = "Connection: close";
 
 const char FAVICON_HEADER[26] = "Content-Type: image/x-icon";
 const char FAVICON_CONTLEN[20] = "Content-Length: 8894";
+const char WWW_AUTHENTICATE[86] = "WWW-Authenticate: Basic realm=UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=";
 
+// QWERTYUIKSDFGHJK< VFTYUIKMNBVFYUKL<MNBVC
+// UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=
 
 int setup_sever(short port, int backlog){
 	// setting up the server.
@@ -28,6 +31,10 @@ int setup_sever(short port, int backlog){
 
 	check(listen(server_socket, backlog), "Listen Failed.");
 
+	// need to change the output.
+	printf("%s%sListenig on port %s%d%s\n", 
+		BOLD, LIGHTGREEN, BLINK, SERVERPORT, RESETALL);
+
 	// returning the server socket (file descriptor).
 	return server_socket;
 }
@@ -37,10 +44,6 @@ int accept_new_connection(int server_socket){
 	int client_socket, addr_size = sizeof(SA_IN);
 	SA_IN client_addr; 
 	char client_addr_str[32];
-
-	// need to change the output.
-	printf("%s%sListenig on port %s%d%s\n", 
-		BOLD, LIGHTGREEN, BLINK, SERVERPORT, RESETALL);
 
 	// waiting for new slave.
 	check((client_socket =
@@ -76,69 +79,107 @@ void * handle_connection(void* args){
 
 // parsing, what kind of request is made by the slave
 void requestType(int client_socket, int server_socket){
+	char c[1];
 	char buf[BUFSIZE];
 	size_t bytes_read;
 	int msgsize = 0;
     bzero(&buf, sizeof(buf));
+    bzero(&c, sizeof(c));
 
-    while((bytes_read = read(client_socket, buf+msgsize, sizeof(buf)-msgsize)))	{
+    /*
+    	just reading the fast line of the request.
+		for further checking. 
+    */
+    while((bytes_read = read(client_socket, c, 1))){
+    	strncat(buf, c, 1);
     	msgsize += bytes_read;
-    	if(msgsize > BUFSIZE-1 || buf[msgsize-1] == '\n') break; 
-    	// if(msgsize > BUFSIZE-1 || endsWith(buf, EOH)) break;
+    	if(msgsize > BUFSIZE-1 || c[0] == '\n') break;
     }
 
+    // it's here for testing and debugging.    
+    printf("%s\n", buf);
     if (startsWith(buf, "exit")){
+    	close(client_socket);
     	close(server_socket);
     	exit(0);
     }
 
+    /*
+    	checking the request type. 
+    */
     if(startsWith(buf, GET)){
-    	if (startsWith(buf, "GET /favicon.ico"))
-    		getHandler(client_socket, buf, IMAGE_ICO);
-    	else
-    		getHandler(client_socket, buf, HTML);
-
-    }else if (startsWith(buf, POST)){
-    	postHandler(client_socket, buf, HTML);
-    }else{
-    	write(client_socket, "ERROR", 5);
-    }
+    	getHandler(client_socket, buf);
+    }// else if (startsWith(buf, POST)){
+    // 	postHandler(client_socket, buf, HTML);
+    // }else{
+    // 	write(client_socket, "ERROR", 5);
+    // }
 
     fflush(stdout);
-    // printf("%s", buf);
     close(client_socket);
-    // printf("%s\n", buf);
 }
 
 /*
 	this function is only for handling the connection 
 	that are made by the USER from the browser.
 */
-void getHandler(int client_socket, const char *buf, int flag){
-	//sending headers.
-	// sending the index.html file.
-	headerSender(client_socket, flag);
+void getHandler(int client_socket, const char *buf){
+	// parsing the first line of client request.
+	headerParser(buf, GET);
 
-	//index file sender.
-	if (flag == HTML){
-		fileSender(client_socket, INDEX_FILE);
-	}else if (flag == IMAGE_ICO){
-		fileSender(client_socket, FAVICON_ICO);		
+	//sending headers.
+	headerSender(client_socket, 0);
+
+	//sending file based on a request.
+	fileSender(client_socket, INDEX_FILE);
+}
+
+void headerParser(const char *header, short flag){
+	// if(!endsWith(header, "HTTP/1.1")) break;
+
+	int len_split = 0;
+
+	char **splited_header = split(header, " ", &len_split);
+
+	char file[BUFSIZE / 2];
+	bzero(&file, sizeof(file));
+    
+	for (int i = 0; i < len_split; ++i){
+		// printf("%s\n", splited_header[i]);
+		if (startsWith(splited_header[i], "/") && endsWith(header, "HTTP/1.1")){ //&& strlen(splited_header[i]) > 2)){
+			// checking for path trivial attack.
+			if(startsWith(splited_header[i], "/.") ||
+			 startsWith(splited_header[i], "//")){
+				printf("attack!!\n");
+				return NULL;
+			}else{
+				int _len = strlen(splited_header[i]);
+				int count = 0;
+				for (; count < _len; ++count){
+					if(splited_header[i][count] == '?'){
+						// printf("%d\n", count);
+						break;
+					}
+				}
+				size_t len = strlen(splited_header[i]);
+				slice_str(splited_header[i], file, 1, len);	
+			}
+			printf("%s\n", file);
+		}
 	}
 }
 
 void postHandler(int client_socket, const char *buf, int flag){
-    int buf_len = strlen(buf);
-    printf("%d\n",buf_len);
-    for (int i = 0; i < buf; ++i){
-    	// if (buf[i] == '\n' && buf[i - 1] > 0 && buf[i + 1] < buf_len){
-    	// 	printf("%s\n", buf[i + 1]);
-    	// }
-    	printf("%c", buf[i]);
+    int split_len = 0;
+    char **buf_split = split(buf, "\n", &split_len);
+
+    for (int i = 0; i < split_len; ++i){
+    	printf("%s ||", buf_split[i]);
     }
 
-    printf("%s\n", buf);
+    free(buf_split);
 	fflush(stdout);
+	fileSender(client_socket, "slave.html");
 	// headerSender(client_socket, flag);
 	// Content-Length
 }

@@ -15,6 +15,7 @@
 #include <sys/sysmacros.h>
 #include <pthread.h>
 #include <errno.h>
+#include <assert.h>
 
 // defining the end of header terminators .
 #define EOHL "\r\n" // End Of Header Line.
