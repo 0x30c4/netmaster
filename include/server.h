@@ -18,7 +18,7 @@
 /*
 	Server header macros for header array.
 */
-#define FILE 0
+#define FILE_NAME 0
 #define COOKIE 1
 #define CONTENT_LENGTH 2
 

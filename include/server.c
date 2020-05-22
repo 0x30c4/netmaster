@@ -165,6 +165,8 @@ void headerParser(const char *header, short flag){
 				slice_str(splited_header[i], file, 1, len);	
 			}
 			printf("%s\n", file);
+		}else if (startsWith(header, "Cookie:")){
+			printf("%s\n", splited_header[i]);
 		}
 	}
 }
@@ -218,20 +220,22 @@ void *fileSender(int client_socket, const char *filename){
     	return NULL;
     }
 
+    // FILE *fp = NULL;
     // printf("%s\n", actualpath);
-    FILE *fp = fopen(actualpath, "r");
-    if(fp == NULL){
+    FILE *file = fopen(actualpath, "r");
+    // FILE *file = fopen(actualpath, "r");
+    if(file == NULL){
     	printf("ERROR(open): %s\n", INDEX_FILE);
     	return NULL;
     }
 
-    while((bytes_read = fread(buf, 1, BUFSIZE, fp)) > 0){
+    while((bytes_read = fread(buf, 1, BUFSIZE, file)) > 0){
     	// printf("Sending %zu bytes\n", bytes_read);
     	write(client_socket, buf, bytes_read);
     }
     
     write(client_socket, EOH, 4);
-    fclose(fp);
+    fclose(file);
     // printf("Closing connection.\n");
 
     return NULL;
