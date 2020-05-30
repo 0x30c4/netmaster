@@ -6,8 +6,8 @@ all: output rmdotos
 run: 
 	./tcps
 
-output: master.o server.o parser.o err.o
-	$(CC) -pthread master.o server.o parser.o err.o -o tcps
+output: master.o server.o parser.o err.o handler.o sender.o common.o
+	$(CC) -pthread master.o server.o parser.o err.o handler.o sender.o common.o -o tcps
 
 master.o: master.c
 	$(CC) $(CFLAGS) -Iinclude master.c
@@ -20,6 +20,15 @@ err.o: include/err.c include/err.h
 
 parser.o: include/parser.c include/parser.h
 	$(CC) $(CFLAGS) include/parser.c
+
+handler.o: include/handler.c include/handler.h
+	$(CC) $(CFLAGS) include/handler.c
+
+sender.o: include/sender.c include/sender.h
+	$(CC) $(CFLAGS) include/sender.c
+
+common.o: include/common.c include/common.h
+	$(CC) $(CFLAGS) include/common.c
 
 clean:
 	rm -rf *.o tcps

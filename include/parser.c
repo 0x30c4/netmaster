@@ -38,6 +38,16 @@ int startsWith(const char *str, const char *substart){
     return 1;
 }
 
+// compares 2 string if they are the samess.
+int stringcmp(const char *str1, const char *str2){
+    if(strlen(str1) != strlen(str2)) return 0;
+    for (int i = 0; i < strlen(str1); ++i){
+        if (str1[i] != str2[i]) return 0;
+    }
+    return 1;
+}
+
+// splits a string every time it finds a specific character. and returns a string array.  
 char **split(const char *str, const char *d, int *len){
     char _str[4096];
     char** result = 0;
@@ -75,8 +85,27 @@ char **split(const char *str, const char *d, int *len){
     return result;
 }
 
+/* 
+    reads from a file descriptor until it gets a line feed.
+    and puts the readied buffer in buf.
+    returns the number of bytes it have read.  
+*/
+int readLine(int fd, char *buf){
+    bzero(buf, sizeof(buf));
+    char c[1];
+    size_t bytes_read;
+    int msgsize = 0;
+    bzero(&c, sizeof(c));
+    while((bytes_read = read(fd, c, sizeof(c)))) {
+        msgsize += bytes_read;
+        strncat(buf, c, sizeof(c));
+        if(msgsize > (BUFSIZE / 2) - 1 || c[0] == '\n' || bytes_read == 0) break;
+    
+    }
+    return msgsize;
+}
 
-void slice_str(const char * str, char * buffer, size_t start, size_t end){
+void slice_str(const char str[BUFSIZE], char * buffer, size_t start, size_t end){
     size_t j = 0;
     for ( size_t i = start; i <= end; ++i ) {
         buffer[j++] = str[i];

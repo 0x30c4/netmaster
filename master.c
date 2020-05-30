@@ -9,8 +9,8 @@ int main(int argc, char const *argv[]){
 
 	// test
 	struct SERVER_CLIENT_FDS *server_client_fd;
-	
 	(*server_client_fd).server = server_socket;
+	
 
 	while(TRUE){
 		// Waiting for new slave.

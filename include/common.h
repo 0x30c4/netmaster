@@ -21,15 +21,11 @@
 #define EOHL "\r\n" // End Of Header Line.
 #define EOH  "\r\n\r\n" // End Of Header.
 
-// defining the end of Request terminators .
-#define EORL "\n" // End Of Request Line.
-#define EOR  "\n\n" // End Of Request.
-
-// defining the headers
-#define GET "GET"
-#define POST "POST"
-
+// some server macros.
 #define BUFSIZE 4096 // Buffer size.
+#define GET 0
+#define POST 1
+#define COOKIE 2
 
 // Defining true and false. 
 #define TRUE 1 
@@ -47,5 +43,36 @@
 #define BOLD "\e[1m"
 #define UNDERLINE "\e[4m"
 #define BLINK "\e[5m"
+
+// extern char *a[3];
+
+// Server constants.
+#define SERVERPORT 6969 // Port to listen on.
+#define SERVER_BACKLOG 100 // After this much connection the slave will be in waiting list
+#define INDEX_FILE "index.html" // This file will be sent to every browser client
+#define FAVICON_ICO "favicon.ico" // This file will be sent to every browser client
+
+/* 
+	Some macros for file handling. 
+	When a file is send to the browser this macros will be in use.
+*/
+#define HTML 0
+#define IMAGE_PNG 1 
+#define IMAGE_ICO 2
+#define IMAGE_JPG 3
+
+/*
+	Server header macros for header array.
+*/
+#define FILE_NAME 0
+#define CONTENT_LENGTH 2
+
+typedef struct sockaddr_in SA_IN;
+typedef struct sockaddr SA;
+
+struct SERVER_CLIENT_FDS{
+	int server;
+	int client;
+};
 
 #endif
