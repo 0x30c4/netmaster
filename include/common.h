@@ -16,16 +16,21 @@
 #include <pthread.h>
 #include <errno.h>
 #include <assert.h>
+#include <time.h>
 
 // defining the end of header terminators .
 #define EOHL "\r\n" // End Of Header Line.
 #define EOH  "\r\n\r\n" // End Of Header.
 
-// some server macros.
+/*
+	Server header macros and flags.
+*/
 #define BUFSIZE 4096 // Buffer size.
 #define GET 0
 #define POST 1
 #define COOKIE 2
+#define CONTENT_LENGTH 3
+#define FILE_NAME 4
 
 // Defining true and false. 
 #define TRUE 1 
@@ -60,12 +65,6 @@
 #define IMAGE_PNG 1 
 #define IMAGE_ICO 2
 #define IMAGE_JPG 3
-
-/*
-	Server header macros for header array.
-*/
-#define FILE_NAME 0
-#define CONTENT_LENGTH 2
 
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;

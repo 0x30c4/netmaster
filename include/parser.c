@@ -105,6 +105,20 @@ int readLine(int fd, char *buf){
     return msgsize;
 }
 
+/* 
+    reads from a file pointer until it gets a line feed.
+    and puts the readied buffer in buf.
+    returns the number of bytes it have read.  
+*/
+int readLineFP(FILE * fp, char *buf){
+    int size = 0;
+    char c;
+    while((c = fgetc(fp)) != '\n' && size < BUFSIZE){
+        buf[size++] = c;
+    }
+    return size;
+}
+
 void slice_str(const char str[BUFSIZE], char * buffer, size_t start, size_t end){
     size_t j = 0;
     for ( size_t i = start; i <= end; ++i ) {

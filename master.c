@@ -27,6 +27,9 @@ int main(int argc, char const *argv[]){
 
 		// pthread_create(&t, NULL, handle_connection, pclient);
 		pthread_create(&t, NULL, handle_connection, server_client_fd);
+
+		// pthread_join(t, NULL);
+	    // break;
 	}
 	return 0;
 }
