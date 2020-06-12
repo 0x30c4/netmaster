@@ -1,15 +1,32 @@
 #include "handler.h"
 
-char *PARSED_FROM_HEADERS[4]; //file, Cookie, GET/POST data, content length.
-char VALID_HEADERS_FROM_SLAVE[5][15] = {"GET", "POST", "Cookie", "Content-Length", "Content-Type"};
+char *PARSED_FROM_HEADERS[3]; //file, Cookie, GET/POST data, content length.
+const char VALID_HEADERS_FROM_SLAVE[5][15] = {"GET\0", "POST\0", "Cookie\0", "Content-Length\0", "Content-Type\0"};
+
+const char FILE_EXT[9][6] = {"html\0", "htm\0", "js\0", "css\0", "txt\0",
+                            "png\0", "jpg\0", "jpge\0", "ico\0"};
+
+// for bit masking the values 
+
+unsigned short GET_R   = 0x01;
+unsigned short POST_R  = 0x02;
+unsigned short CON_LEN = 0x04;
+unsigned short CON_TYP = 0x08;
 
 /*
     checks if the file is accessible by the 
     server starter user and not a directory/special file.
 */
-int fileChecker(char *fn, unsigned long long int *size){
-    struct stat sb;
+int fileChecker(char *fn, unsigned long long int *size, int *file_type){
 
+    // checking for path trivial attack.
+    if(startsWith(fn, "/.") || startsWith(fn, ".") || 
+            startsWith(fn, "//")){
+        printf("attack!!\n");
+        return Not_Acceptable;
+    }
+
+    struct stat sb;
     if( access( fn, F_OK ) == -1 ) return Not_Found;
 
     if (stat(fn, &sb) == -1) {
@@ -22,7 +39,7 @@ int fileChecker(char *fn, unsigned long long int *size){
     switch (sb.st_mode & S_IFMT) {
         case S_IFBLK:  return ERRNOTREGFILE; break;
         case S_IFCHR:  return ERRNOTREGFILE; break;
-        case S_IFDIR:  return Bad_Request; break;
+        case S_IFDIR:  return Bad_Request  ; break;
         case S_IFIFO:  return ERRNOTREGFILE; break;
         case S_IFLNK:  return ERRNOTREGFILE; break;
         case S_IFREG:                        break;
@@ -30,42 +47,61 @@ int fileChecker(char *fn, unsigned long long int *size){
         default:       return ERRNOTREGFILE; break;
     }
     *size = sb.st_size;
+    for (int i = 0; i < 9; ++i){
+        // printf("%s || %s || %d\n", fn, FILE_EXT[i], endsWith(fn, FILE_EXT[i]));
+        if (endsWith(strlow(strndup(fn, strlen(fn))), FILE_EXT[i])) {
+            *file_type = i;
+            break;
+        }
+    }
+    if (*file_type == -1) *file_type = OCTET_STREAM;
+    // printf("%d\n", *file_type);
     //checking the file permission.
-    return (sb.st_mode & S_IRUSR) ? OK : Unauthorized;
+    if (sb.st_mode & S_IRUSR){
+        // strncpy(file, fn, strlen(fn));
+        return OK;
+    }else{
+        return Unauthorized;
+    }
 }
 
 // parsing, what kind of request is made by the slave
 void requestType(int client_socket, int server_socket){
-	char buf[BUFSIZE];
-	char *buf2;
-    char file[BUFSIZE / 2];
-    short flag = 0;
-	short flag_2 = 0;
     unsigned long long file_size = 0;
-    bzero(&file, sizeof(file));
-    while(TRUE){
-        readLine(client_socket, buf);
-        buf2 = headerParser(buf, &flag);
-            
-        printf("%s", buf);
-        if(buf2 != NULL) {
-            printf("%s\n", buf2);
-        	if (flag == FILE_NAME){
-                printf("%d", fileChecker(buf2, &file_size));
-                if (fileChecker(buf2, &file_size) == OK) strncpy(file, buf2, sizeof(buf2));
-            }
-        	if (flag == COOKIE){
-                printf("COOKIE: %s\n", buf2);    
-            }
-        }
-        // if(endsWith(buf, EOHL) && strlen(buf) > 2) printf("%s", buf);
-        if(stringcmp(buf, EOHL)) break;
-    }
-    
-    printf("FILE NAME: %s\n", file);
+    unsigned short is_get_post_con_type_len = 0x0;
+    int ret_code = -1;
+    int file_type = -1;
+	char buf[BUFSIZE];
+    short count = 0;
 
-	headerSender(client_socket, HTML);
-	fileSender(client_socket, INDEX_FILE);
+    while(TRUE){
+        if(readLine(client_socket, buf) == 0) {
+            if (count == 0) ret_code = Bad_Request;
+            break;
+        }
+
+        if (ret_code == -1)
+            headerParser(buf, &is_get_post_con_type_len, &ret_code);
+
+        printf("%d || %s", strlen(buf), buf);
+        if(stringcmp(buf, EOHL)){
+            if ((is_get_post_con_type_len & POST_R) == POST_R && count != 0)
+                break;
+            else if ((is_get_post_con_type_len & GET_R) == GET_R)
+                break;
+            // else if ((is_get_post_con_type_len & POST_R) == POST_R && count == 0)
+            count++;
+        } 
+    }
+
+    if (ret_code == -1)
+        ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);    
+
+    headerSender(client_socket, file_type, file_size, ret_code);
+
+    if (ret_code == OK) fileSender(client_socket, PARSED_FROM_HEADERS[FILE_NAME]);
+    
+    // printf("%s\n", PARSED_FROM_HEADERS[0]);
 
     // it's here for testing and debugging.
     // close(client_socket);
@@ -75,60 +111,130 @@ void requestType(int client_socket, int server_socket){
   
     fflush(stdout);
     close(client_socket);
-}
+}   
 
-
-char *headerParser(char *header, short *flag){
-    *flag = 0;
-   	if(!endsWith(header, EOHL)) return "400"; 
-
-    for (int i = 0; i < 5; ++i){
-        if(!startsWith(header, VALID_HEADERS_FROM_SLAVE[i])) return NULL;
-    }    
+void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *ret_code){
+    if(!endsWith(header, EOHL)) {
+        printf("Bad_Request 3\n");
+        *ret_code = Bad_Request;
+        return NULL;
+    }
 
     int len_split = 0;
 
+    len_split = 0;
     char **splited_header = split(header, " ", &len_split);
 
-    char *data = malloc(sizeof(char*));
-    bzero(data, sizeof(data));
-    
-    for (int i = 0; i < len_split; ++i){
-        if (startsWith(splited_header[i], "/") && 
-         endsWith(header, "HTTP/1.1\r\n") && 
-         strlen(splited_header[i]) > 2) {
-            // checking for path trivial attack.
-            if(startsWith(splited_header[i], "/.") ||
-                startsWith(splited_header[i], "//")){
-                printf("attack!!\n");
-                return FALSE;
-            }
+    /* 
+        checking for valid headers. and the context also.
+        because when the a GET request can't handle content-length and 
+        content-type header.i'm doing this because in my context 
+        this is useless and i don't need this. 
+    */
 
-            size_t _len = strlen(splited_header[i]);
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[GET])) 
+        *is_get_post_con_type_len = (GET_R | *is_get_post_con_type_len);
+
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[POST])) 
+        *is_get_post_con_type_len = (POST_R | *is_get_post_con_type_len);
+    
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTLENGTH])) 
+        *is_get_post_con_type_len = (CON_LEN | *is_get_post_con_type_len);
+    
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTTYPE])) 
+        *is_get_post_con_type_len = (CON_TYP | *is_get_post_con_type_len);
+
+    // printf("GET_R   : %d\n", *is_get_post_con_type_len & GET_R);
+    // printf("POST_R  : %d\n", *is_get_post_con_type_len & POST_R);
+    // printf("CON_TYP : %d\n", *is_get_post_con_type_len & CON_TYP);
+    // printf("CON_LEN : %d\n", *is_get_post_con_type_len & CON_LEN);
+
+    //checking if the get request have any none necessary headers. 
+    if ((*is_get_post_con_type_len & GET_R) == GET_R &&
+        ((*is_get_post_con_type_len & CON_LEN) == CON_LEN
+        || (*is_get_post_con_type_len & CON_TYP) == CON_TYP)) {        
+        *ret_code = Not_Acceptable;
+        return NULL;
+    }
+
+    // checking if the post request have required headers.  
+    if ((*is_get_post_con_type_len & POST_R) == GET_R &&
+        (*is_get_post_con_type_len & CON_LEN) != CON_LEN &&
+        (*is_get_post_con_type_len & CON_TYP) != CON_TYP) {
+        *ret_code = Not_Acceptable;
+        return NULL;
+    }
+
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[GET]) || 
+        startsWith(header, VALID_HEADERS_FROM_SLAVE[POST])){
+        if (len_split != 3 || strncmp(splited_header[2], "HTTP/1.1\r\n", 10)) {
+            printf("Bad_Request 1\n");
+            *ret_code = Bad_Request;
+            return NULL;
+        }
+    }else if(startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTLENGTH]) ||
+                startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTTYPE])){
+        if(len_split != 2){
+            printf("Bad_Request 2\n");
+            *ret_code = Bad_Request;
+            return NULL;
+        }
+    }
+
+    char *data = malloc(sizeof(char*));
+    bzero(data, sizeof(data)); 
+    for (int i = 0; i < len_split; ++i){
+        if (startsWith(splited_header[i], "/")) {
             int count = 0;
+            int _len = strlen(splited_header[i]);
             for (; count < _len; ++count){
                 if(splited_header[i][count] == '?'){ //|| splited_header[i][count] == '/'){
-                    _len = count - 1;
-                    // printf("%d\n", count);
-                    break;
+                    *ret_code = Not_Acceptable;
+                    return NULL;
                 }
             }
-            printf("%d\n", stringcmp(splited_header[i], "/"));
-            if (stringcmp(splited_header[i], "/")) return INDEX_FILE;
-
-            slice_str(splited_header[i], data, 1, _len);
-            *flag = FILE_NAME;
-            // returning the file name that client requested with get or post.
-            return data;
+            /* 
+                when the client request for the "/" then the fn length is zero.
+                so, the fn is initialize with the index.html file. 
+                returning the file name that client requested with get or post.
+            */
+            if (_len > 1){
+                slice_str(splited_header[i], data, 1, _len);
+                PARSED_FROM_HEADERS[FILE_NAME] = data;
+            }else {
+                PARSED_FROM_HEADERS[FILE_NAME] = INDEX_FILE;
+                free(data);
+            }
+            printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
         }
     }
     if (startsWith(header, "Cookie:")){
-        *flag = COOKIE;
-	    // printf("%d\n", startsWith(header, "Cookie:"));
-        return cookieHandler(header);
+        // printf("%d\n", startsWith(header, "Cookie:"));
+        PARSED_FROM_HEADERS[COOKIE_D] = "NULL";
     }
     // printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
-    return data;
+    // return data;
+    return NULL;
+}
+
+void headerParser(char *header, unsigned short *is_get_post_con_type_len, int *ret_code){
+    int len_split = 0;
+    /*
+        checking if the header is in the VALID_HEADERS_FROM_SLAVE array.
+        if not then "NULL" will be returned.           
+    */
+    for (int i = 0; i < 5; ++i){
+        if(!startsWith(header, VALID_HEADERS_FROM_SLAVE[i])){
+            len_split++;
+        }
+    }
+
+    if (len_split != 4) {
+        // printf("%s", header);
+        // return "NULL\0";
+
+    }    
+    httpHandler(header, is_get_post_con_type_len, ret_code);
 }
 
 char *cookieHandler(char *cookie){
@@ -176,7 +282,7 @@ void getHandler(int client_socket, const char *buf){
     printf("%s\n", file);
 
 	//sending headers.
-	headerSender(client_socket, HTML);
+	// headerSender(client_socket, HTML);
 
 	// //sending file based on a request.
 	fileSender(client_socket, INDEX_FILE);
@@ -188,7 +294,7 @@ void postHandler(int client_socket, const char *buf, int flag){
 	// headerParser(buf, _POST);
 
 	//sending headers.
-	headerSender(client_socket, HTML);
+	// headerSender(client_socket, HTML);
 
 	//sending file based on a request.
 	fileSender(client_socket, INDEX_FILE);

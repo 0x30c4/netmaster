@@ -7,6 +7,5 @@
 #include "err.h"
 
 void * fileSender(int, const char *);
-void headerSender(int, int);
-
+void headerSender(int , int, unsigned long long int, int);
 #endif

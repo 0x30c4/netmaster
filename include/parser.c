@@ -17,7 +17,6 @@ int endsWith(const char *str, const char *subend){
         if (str[i] != subend[j]) return 0;
         j++;
     }
-
 	return 1;
 }
 
@@ -91,11 +90,11 @@ char **split(const char *str, const char *d, int *len){
     returns the number of bytes it have read.  
 */
 int readLine(int fd, char *buf){
-    bzero(buf, sizeof(buf));
+    bzero(buf, strlen(buf));
     char c[1];
     size_t bytes_read;
     int msgsize = 0;
-    bzero(&c, sizeof(c));
+    bzero(&c, strlen(c));
     while((bytes_read = read(fd, c, sizeof(c)))) {
         msgsize += bytes_read;
         strncat(buf, c, sizeof(c));
@@ -125,4 +124,30 @@ void slice_str(const char str[BUFSIZE], char * buffer, size_t start, size_t end)
         buffer[j++] = str[i];
     }
     buffer[j] = 0;
+}
+
+void stringcpy(char dest[BUFSIZE], char *str){
+    bzero(dest, sizeof(dest));
+    int str_len = strlen(str);
+    // if (str_len > BUFSIZE) return NULL;
+    for (int i = 0; i < str_len; ++i){
+        dest[i] = str[i];
+    }
+}
+
+char *strlow(char str[BUFSIZE]){
+    int i;
+
+    // Iterate loop till last character of string
+    for(i=0; str[i]!='\0'; i++)
+    {
+        if(str[i]>='A' && str[i]<='Z')
+        {
+            str[i] = str[i] + 32;
+        }
+    }
+
+    // printf("Lower case string: %s", str);
+
+    return str;
 }

@@ -18,19 +18,13 @@
 #include <assert.h>
 #include <time.h>
 
-// defining the end of header terminators .
-#define EOHL "\r\n" // End Of Header Line.
-#define EOH  "\r\n\r\n" // End Of Header.
-
 /*
 	Server header macros and flags.
 */
 #define BUFSIZE 4096 // Buffer size.
-#define GET 0
-#define POST 1
-#define COOKIE 2
-#define CONTENT_LENGTH 3
-#define FILE_NAME 4
+#define FILE_NAME 0
+#define COOKIE_D 1
+#define POST_D 2
 
 // Defining true and false. 
 #define TRUE 1 
@@ -62,9 +56,22 @@
 	When a file is send to the browser this macros will be in use.
 */
 #define HTML 0
-#define IMAGE_PNG 1 
-#define IMAGE_ICO 2
-#define IMAGE_JPG 3
+#define HTM 1
+#define JS 2
+#define CSS 3
+#define TEXT 4
+#define IMAGE_PNG 5 
+#define IMAGE_JPG 6
+#define IMAGE_JPGE 7
+#define IMAGE_ICO 8
+#define OCTET_STREAM 9
+
+// VALID_HEADERS_FROM_SLAVE array element index
+#define GET 0
+#define POST 1
+#define COOKIE 2
+#define CONTENTLENGTH 3
+#define CONTENTTYPE 4
 
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
@@ -73,5 +80,9 @@ struct SERVER_CLIENT_FDS{
 	int server;
 	int client;
 };
+
+// defining the end of header terminators .
+extern const char EOHL[3]; // End Of Header Line.
+extern const char EOH[5]; // End Of Header.
 
 #endif

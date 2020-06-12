@@ -2,20 +2,30 @@
 #define _HANDLER_H_
 
 #include "common.h"
-
 #include "handler.h"
 #include "parser.h"
 #include "sender.h"
 #include "server.h"
 #include "err.h"
 
+// for bit masking the values 
+// #define GET_R   = 0x01
+// #define POST_R  = 0x02
+// #define CON_LEN = 0x04
+// #define CON_TYP = 0x08
+
 void postHandler(int, const char *, int);
 void *handle_connection(void*);
 void getHandler(int, const char *);
 // parsing, what kind of request is made by the slave
-void requestType(int client_socket, int server_socket);
-char *headerParser(char *header, short *);
-char *cookieHandler(char *cookie);
-int fileChecker(char *fn, unsigned long long int *size);
+void requestType(int, int);
+void headerParser(char *, unsigned short *, int *);
+char *cookieHandler(char *);
+int fileChecker(char *, unsigned long long int *, int *);
+
+void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *ret_code);
+
+const char FILE_EXT[9][6];
+char *PARSED_FROM_HEADERS[3]; //file, Cookie, POST data, content length.
 
 #endif

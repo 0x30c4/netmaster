@@ -1,33 +1,39 @@
 #include "sender.h"
 
 // Server respones headers.
-const char RESPONSE_GET_POST[17] = "HTTP/1.1 200 OK\r\n";
-const char SERVER_DETAILS[24] = "Server: NETMASTER/0.69\r\n";
-const char SERVER_CONTENT_TYPE[40] = "Content-type: text/html; charset=UTF-8\r\n";
-const char CLOSE_GET_POST[21] = "Connection: close\r\n\r\n";
+const char RESPONSE_GET_POST[10] = "HTTP/1.1 \0";
 
-const char FAVICON_HEADER[28] = "Content-Type: image/x-icon\r\n";
-const char FAVICON_CONTLEN[22] = "Content-Length: 8894\r\n";
-const char WWW_AUTHENTICATE[88] = "WWW-Authenticate: Basic realm=UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=\r\n";
+const char SERVER_DETAILS[25] = "Server: NETMASTER/0.69\0";
+const char CLOSE_GET_POST[22] = "Connection: close\0";
 
-void headerSender(int client_socket, int flag){
-	write(client_socket, RESPONSE_GET_POST, sizeof(RESPONSE_GET_POST));
-	// write(1, RESPONSE_GET_POST, sizeof(RESPONSE_GET_POST));
-	
-	write(client_socket, SERVER_DETAILS, sizeof(SERVER_DETAILS));
-	// write(1, SERVER_DETAILS, sizeof(SERVER_DETAILS));
-	
-	if (flag == IMAGE_ICO){
-		write(client_socket, FAVICON_HEADER, sizeof(FAVICON_HEADER));		
-		write(client_socket, FAVICON_CONTLEN, sizeof(FAVICON_CONTLEN));		
-	}else if (flag == HTML){
-		write(client_socket, SERVER_CONTENT_TYPE, sizeof(SERVER_CONTENT_TYPE));
-		// write(1, SERVER_CONTENT_TYPE, sizeof(SERVER_CONTENT_TYPE));
+const char CONTENT_TYPE[15] = "Content-Type: \0";// image/x-icon\r\n"; //application/octet-stream // text/x-c; charset=UTF-8 // image/png
+const char CONTENT_LENGTH[17] = "Content-Length: \0";
+// const char WWW_AUTHENTICATE[88] = "WWW-Authenticate: Basic realm=UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=\r\n";
+
+
+// {"text/html; charset=UTF-8\r\n", "text/htm; charset=UTF-8\r\n", 
+// "text/js; charset=UTF-8\r\n", "text/css; charset=UTF-8\r\n",
+// "text/txt; charset=UTF-8\r\n", "image/jpg", "image/jpge", "image/x-icon\r\n",
+//  "image/png"}
+
+void headerSender(int client_socket, int flag, unsigned long long int size, int status_code){
+	// printf("%lld\n", size);
+	dprintf(client_socket, "%s%s%s%s%s", RESPONSE_GET_POST, STATUS_CODE[status_code], EOHL,
+											SERVER_DETAILS, EOHL);
+
+	if (TEXT >= flag || status_code != OK){
+		dprintf(client_socket, "%stext/%s; charset=UTF-8%s", CONTENT_TYPE, 
+			(status_code != OK) ? FILE_EXT[HTML] : FILE_EXT[flag], EOHL);
+	}else if (IMAGE_ICO >= flag){
+		dprintf(client_socket, "%simage/x-%s%s%s", CONTENT_TYPE, FILE_EXT[flag], 
+			(flag == 8) ? "n" : "", EOHL);
+	}else if (flag == OCTET_STREAM){
+		dprintf(client_socket, "%sapplication/octet-stream%s", CONTENT_TYPE, EOHL);
 	}
 
-	write(client_socket, CLOSE_GET_POST, sizeof(CLOSE_GET_POST));
-   	// write(client_socket, "Set-Cookie: _ga=asdayFTYFYJF>Mjasdj", 36);
-
+	dprintf(client_socket, "%s%lld%s", CONTENT_LENGTH, size, EOHL);
+	
+	dprintf(client_socket, "%s%s", CLOSE_GET_POST, EOH);
 }
 
 void *fileSender(int client_socket, const char *filename){
