@@ -17,7 +17,6 @@ const char CONTENT_LENGTH[17] = "Content-Length: \0";
 //  "image/png"}
 
 void headerSender(int client_socket, int flag, unsigned long long int size, int status_code){
-	// printf("%lld\n", size);
 	dprintf(client_socket, "%s%s%s%s%s", RESPONSE_GET_POST, STATUS_CODE[status_code], EOHL,
 											SERVER_DETAILS, EOHL);
 

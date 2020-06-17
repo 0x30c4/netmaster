@@ -14,16 +14,13 @@
 // #define CON_LEN = 0x04
 // #define CON_TYP = 0x08
 
-void postHandler(int, const char *, int);
-void *handle_connection(void*);
-void getHandler(int, const char *);
 // parsing, what kind of request is made by the slave
-void requestType(int, int);
-void headerParser(char *, unsigned short *, int *);
+void httpRequestHandler(int, int);
+void *handle_connection(void*);
+void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, int *ret_code, short *,  bool *);
 char *cookieHandler(char *);
 int fileChecker(char *, unsigned long long int *, int *);
-
-void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *ret_code);
+int requestValidity(unsigned short *);
 
 const char FILE_EXT[9][6];
 char *PARSED_FROM_HEADERS[3]; //file, Cookie, POST data, content length.

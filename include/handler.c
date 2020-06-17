@@ -1,6 +1,6 @@
 #include "handler.h"
 
-char *PARSED_FROM_HEADERS[3]; //file, Cookie, GET/POST data, content length.
+char *PARSED_FROM_HEADERS[3] = {"\0", "\0", "\0"}; //file, Cookie, GET/POST data, content length.
 const char VALID_HEADERS_FROM_SLAVE[5][15] = {"GET\0", "POST\0", "Cookie\0", "Content-Length\0", "Content-Type\0"};
 
 const char FILE_EXT[9][6] = {"html\0", "htm\0", "js\0", "css\0", "txt\0",
@@ -66,54 +66,70 @@ int fileChecker(char *fn, unsigned long long int *size, int *file_type){
 }
 
 // parsing, what kind of request is made by the slave
-void requestType(int client_socket, int server_socket){
+void httpRequestHandler(int client_socket, int server_socket){
     unsigned long long file_size = 0;
     unsigned short is_get_post_con_type_len = 0x0;
     int ret_code = -1;
     int file_type = -1;
-	char buf[BUFSIZE];
-    short count = 0;
-
+    char buf[BUFSIZE];
+    short eohlCounter = 0;
+    bool loop = TRUE;
     while(TRUE){
         if(readLine(client_socket, buf) == 0) {
-            if (count == 0) ret_code = Bad_Request;
             break;
         }
+        if (stringcmp(buf, EOHL)) eohlCounter += 1;
 
-        if (ret_code == -1)
-            headerParser(buf, &is_get_post_con_type_len, &ret_code);
-
-        printf("%d || %s", strlen(buf), buf);
-        if(stringcmp(buf, EOHL)){
-            if ((is_get_post_con_type_len & POST_R) == POST_R && count != 0)
-                break;
-            else if ((is_get_post_con_type_len & GET_R) == GET_R)
-                break;
-            // else if ((is_get_post_con_type_len & POST_R) == POST_R && count == 0)
-            count++;
-        } 
+        if (ret_code == -1) 
+            httpReqestParser(buf, &is_get_post_con_type_len, &ret_code, &eohlCounter, &loop);
     }
+    dprintf(client_socket, "%s\n", "asdasdasdasdas");
+    dprintf(client_socket, "%s\n", "asdasdasdasdas");
+    dprintf(client_socket, "%s\n", "asdasdasdasdas");
 
+    // client_socket = 1;
+    // checking if the request doesn't end with a EOH. 
+    if (eohlCounter == 0) ret_code = Bad_Request;
+    
     if (ret_code == -1)
-        ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);    
+        ret_code = requestValidity(&is_get_post_con_type_len);
 
+    // if the return code is not changed then the file checker checks the file.
+    if (ret_code == 0)
+        ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);
+
+    
+    // sending the header
     headerSender(client_socket, file_type, file_size, ret_code);
 
+    // errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
+
     if (ret_code == OK) fileSender(client_socket, PARSED_FROM_HEADERS[FILE_NAME]);
-    
-    // printf("%s\n", PARSED_FROM_HEADERS[0]);
+    // else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
 
-    // it's here for testing and debugging.
-    // close(client_socket);
-    // close(server_socket);
-    // exit(1);
+    // printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
+    // printf("%s\n", PARSED_FROM_HEADERS[COOKIE_D]);
+    // printf("%s\n", PARSED_FROM_HEADERS[POST_D]);
 
-  
     fflush(stdout);
     close(client_socket);
 }   
 
-void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *ret_code){
+void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, int *ret_code, short *eohlCounter, bool *loop){
+    // if (*eohlCounter  && (*is_get_post_con_type_len & POST_R) == POST_R)
+    //     *eohlCounter += 1;
+    // printf("POST %d | GET %d | EOHL  %d\n", *eohlCounter == 0, *eohlCounter, stringcmp(header, EOHL));
+    if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & GET_R) == GET_R){
+        // printf("end of get \n");
+        *loop = FALSE;
+        return NULL;
+    }
+    if ((*eohlCounter) == 2) {
+        // printf("end of post \n");
+        *loop = FALSE;
+        return NULL;
+    }
+
     if(!endsWith(header, EOHL)) {
         printf("Bad_Request 3\n");
         *ret_code = Bad_Request;
@@ -137,33 +153,17 @@ void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *r
 
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[POST])) 
         *is_get_post_con_type_len = (POST_R | *is_get_post_con_type_len);
-    
+
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTLENGTH])) 
         *is_get_post_con_type_len = (CON_LEN | *is_get_post_con_type_len);
-    
+
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTTYPE])) 
         *is_get_post_con_type_len = (CON_TYP | *is_get_post_con_type_len);
 
     // printf("GET_R   : %d\n", *is_get_post_con_type_len & GET_R);
     // printf("POST_R  : %d\n", *is_get_post_con_type_len & POST_R);
-    // printf("CON_TYP : %d\n", *is_get_post_con_type_len & CON_TYP);
-    // printf("CON_LEN : %d\n", *is_get_post_con_type_len & CON_LEN);
-
-    //checking if the get request have any none necessary headers. 
-    if ((*is_get_post_con_type_len & GET_R) == GET_R &&
-        ((*is_get_post_con_type_len & CON_LEN) == CON_LEN
-        || (*is_get_post_con_type_len & CON_TYP) == CON_TYP)) {        
-        *ret_code = Not_Acceptable;
-        return NULL;
-    }
-
-    // checking if the post request have required headers.  
-    if ((*is_get_post_con_type_len & POST_R) == GET_R &&
-        (*is_get_post_con_type_len & CON_LEN) != CON_LEN &&
-        (*is_get_post_con_type_len & CON_TYP) != CON_TYP) {
-        *ret_code = Not_Acceptable;
-        return NULL;
-    }
+    // printf("CON_TYP : %d\n", (*is_get_post_con_type_len & CON_TYP) == CON_TYP);
+    // printf("CON_LEN : %d\n", (*is_get_post_con_type_len & CON_LEN) == CON_LEN);
 
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[GET]) || 
         startsWith(header, VALID_HEADERS_FROM_SLAVE[POST])){
@@ -190,6 +190,7 @@ void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *r
             for (; count < _len; ++count){
                 if(splited_header[i][count] == '?'){ //|| splited_header[i][count] == '/'){
                     *ret_code = Not_Acceptable;
+                    printf("Not_Acceptable 3\n");
                     return NULL;
                 }
             }
@@ -200,115 +201,76 @@ void *httpHandler(char *header, unsigned short *is_get_post_con_type_len, int *r
             */
             if (_len > 1){
                 slice_str(splited_header[i], data, 1, _len);
-                PARSED_FROM_HEADERS[FILE_NAME] = data;
+                PARSED_FROM_HEADERS[FILE_NAME] = strndup(data, strlen(data));
             }else {
                 PARSED_FROM_HEADERS[FILE_NAME] = INDEX_FILE;
-                free(data);
             }
-            printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
+            free(data);
+            return NULL;
         }
     }
     if (startsWith(header, "Cookie:")){
-        // printf("%d\n", startsWith(header, "Cookie:"));
-        PARSED_FROM_HEADERS[COOKIE_D] = "NULL";
+        PARSED_FROM_HEADERS[COOKIE_D] = strndup(header, strlen(header));
+        return NULL;
     }
-    // printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
-    // return data;
+
+    if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & POST_R) == POST_R){
+        PARSED_FROM_HEADERS[POST_D] = strndup(header, strlen(header));
+        return NULL;
+    }
     return NULL;
 }
 
-void headerParser(char *header, unsigned short *is_get_post_con_type_len, int *ret_code){
-    int len_split = 0;
-    /*
-        checking if the header is in the VALID_HEADERS_FROM_SLAVE array.
-        if not then "NULL" will be returned.           
-    */
-    for (int i = 0; i < 5; ++i){
-        if(!startsWith(header, VALID_HEADERS_FROM_SLAVE[i])){
-            len_split++;
-        }
+int requestValidity(unsigned short *is_get_post_con_type_len){
+    // printf("%d\n", (*is_get_post_con_type_len & GET_R) == GET_R &&
+    //     ((*is_get_post_con_type_len & CON_LEN) == CON_LEN
+    //     || (*is_get_post_con_type_len & CON_TYP) == CON_TYP));
+
+    // printf("%d\n", (*is_get_post_con_type_len & POST_R) == POST_R &&
+    //     ((*is_get_post_con_type_len & CON_LEN) != CON_LEN ||
+    //             (*is_get_post_con_type_len & CON_TYP) != CON_TYP));
+
+    //checking if the get request have any none necessary headers. 
+    if ((*is_get_post_con_type_len & GET_R) == GET_R &&
+        ((*is_get_post_con_type_len & CON_LEN) == CON_LEN
+        || (*is_get_post_con_type_len & CON_TYP) == CON_TYP)) {        
+        printf("Not_Acceptable 1\n");
+        return Not_Acceptable;
     }
 
-    if (len_split != 4) {
-        // printf("%s", header);
-        // return "NULL\0";
-
-    }    
-    httpHandler(header, is_get_post_con_type_len, ret_code);
+    // checking if the post request have required headers.  
+    if ((*is_get_post_con_type_len & POST_R) == POST_R &&
+        ((*is_get_post_con_type_len & CON_LEN) != CON_LEN ||
+                 (*is_get_post_con_type_len & CON_TYP) != CON_TYP)) {
+        printf("Not_Acceptable 2\n");
+        return Not_Acceptable;
+    }
+    return OK;
 }
 
 char *cookieHandler(char *cookie){
-	// printf("%s\n", cookie);
-	int cookie_v_size = 0;
-	char **cookie_v = split(cookie, " ", &cookie_v_size);
-	if (cookie_v_size != 2) return FALSE;
-	if(startsWith(cookie_v[1], "_aed=") && strlen(cookie_v[1]) == 23){
-		slice_str(cookie_v[1], cookie, 5, 23);
-		for (int i = 0; i < 4; ++i){
-		}
-		// printf("%s\n", cookie);
-	}
-	return "NULL";
+    // printf("%s\n", cookie);
+    // int cookie_v_size = 0;
+    // char **cookie_v = split(cookie, " ", &cookie_v_size);
+    // if (cookie_v_size != 2) return FALSE;
+    // if(startsWith(cookie_v[1], "_aed=") && strlen(cookie_v[1]) == 23){
+    //     slice_str(cookie_v[1], cookie, 5, 23);
+    //     for (int i = 0; i < 4; ++i){
+    //     }
+    //     // printf("%s\n", cookie);
+    // }
+    return "NULL";
 }
 
 
 void * handle_connection(void* args){
-	// handling the slaves.
-	// int client_socket = *((int*)args);
-	// free(args);
+    // handling the slaves.
+    // int client_socket = *((int*)args);
+    // free(args);
 
-	struct SERVER_CLIENT_FDS *server_client_fd = (struct SERVER_CLIENT_FDS*)args;
-
-
-	// this function will parse the request from the slave.
-	// requestType(client_socket);
-	requestType(server_client_fd->client, server_client_fd->server);
-
+    struct SERVER_CLIENT_FDS *server_client_fd = (struct SERVER_CLIENT_FDS*)args;
+    // this function will parse the request from the slave.
+    httpRequestHandler(server_client_fd->client, server_client_fd->server);
     close(server_client_fd->client);
     return NULL;
-}
-
-
-/*
-	this function is only for handling the connection 
-	that are made by the USER from the browser.
-*/
-void getHandler(int client_socket, const char *buf){
-	char file[1024];
-	bzero(&file, sizeof(file));
-	// parsing the first line of client request.
-	// headerParser(buf, GET, file);
-
-    printf("%s\n", file);
-
-	//sending headers.
-	// headerSender(client_socket, HTML);
-
-	// //sending file based on a request.
-	fileSender(client_socket, INDEX_FILE);
-}
-
-void postHandler(int client_socket, const char *buf, int flag){
-	// parsing the first line of client request.
-	// printf("%s\n", buf);
-	// headerParser(buf, _POST);
-
-	//sending headers.
-	// headerSender(client_socket, HTML);
-
-	//sending file based on a request.
-	fileSender(client_socket, INDEX_FILE);
-
- //    int split_len = 0;
- //    char **buf_split = split(buf, "\n", &split_len);
-
- //    for (int i = 0; i < split_len; ++i){
- //    	printf("%s ||", buf_split[i]);
- //    }
-
- //    free(buf_split);
-	// fflush(stdout);
-	// fileSender(client_socket, "slave.html");
-	// headerSender(client_socket, flag);
-	// Content-Length
 }

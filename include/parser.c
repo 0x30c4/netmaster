@@ -151,3 +151,12 @@ char *strlow(char str[BUFSIZE]){
 
     return str;
 }
+
+
+bool isInArray(char **arry, char com[BUFSIZE], int array_size){
+    for (int i = 0; i < array_size; ++i){
+        if (stringcmp(arry[i], com))
+            return TRUE;
+    }
+    return FALSE;
+}

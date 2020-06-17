@@ -22,6 +22,8 @@
 	Server header macros and flags.
 */
 #define BUFSIZE 4096 // Buffer size.
+
+// PARSED_FROM_HEADERS array index. 
 #define FILE_NAME 0
 #define COOKIE_D 1
 #define POST_D 2

@@ -22,6 +22,8 @@
 #define Not_Acceptable			5 // not send this to the client.
 #define Internal_Server_Error   6 // server error
 
+// http error page 
+#define ERROR_PAGE "error/error.html"
 // #define OK                    	200 // every thing is ok
 // #define Bad_Request 			400 // bad request/malformed request 
 // #define Unauthorized   			401 // not authorized to get the content.
@@ -33,5 +35,6 @@
 extern const char STATUS_CODE[7][26];
 
 int check(int, const char *);
+void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]);
 // int checkIfNull(void *, const char *)
 #endif
