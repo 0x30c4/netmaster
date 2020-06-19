@@ -67,6 +67,8 @@ int fileChecker(char *fn, unsigned long long int *size, int *file_type){
 
 // parsing, what kind of request is made by the slave
 void httpRequestHandler(int client_socket, int server_socket){
+    headerSender(client_socket, HTML, 500, 0);
+
     unsigned long long file_size = 0;
     unsigned short is_get_post_con_type_len = 0x0;
     int ret_code = -1;
@@ -75,22 +77,24 @@ void httpRequestHandler(int client_socket, int server_socket){
     short eohlCounter = 0;
     bool loop = TRUE;
     while(TRUE){
-        if(readLine(client_socket, buf) == 0) {
-            break;
-        }
-        if (stringcmp(buf, EOHL)) eohlCounter += 1;
+        if(readLine(client_socket, buf) == 0) break;
+     
+        // read(client_socket, buf, sizeof(buf));
+        // dprintf(client_socket, "%s", buf);
+        // printf("%s", buf);
 
+        if (stringcmp(buf, EOHL)) eohlCounter += 1;
+     
         if (ret_code == -1) 
             httpReqestParser(buf, &is_get_post_con_type_len, &ret_code, &eohlCounter, &loop);
+        // break;
     }
-    dprintf(client_socket, "%s\n", "asdasdasdasdas");
-    dprintf(client_socket, "%s\n", "asdasdasdasdas");
-    dprintf(client_socket, "%s\n", "asdasdasdasdas");
+    // fileSender(client_socket, INDEX_FILE);
 
     // client_socket = 1;
     // checking if the request doesn't end with a EOH. 
     if (eohlCounter == 0) ret_code = Bad_Request;
-    
+
     if (ret_code == -1)
         ret_code = requestValidity(&is_get_post_con_type_len);
 
@@ -98,27 +102,22 @@ void httpRequestHandler(int client_socket, int server_socket){
     if (ret_code == 0)
         ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);
 
+    // printf("%d\n", client_socket);
     
     // sending the header
     headerSender(client_socket, file_type, file_size, ret_code);
 
-    // errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
-
     if (ret_code == OK) fileSender(client_socket, PARSED_FROM_HEADERS[FILE_NAME]);
-    // else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
+    else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
 
     // printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
     // printf("%s\n", PARSED_FROM_HEADERS[COOKIE_D]);
     // printf("%s\n", PARSED_FROM_HEADERS[POST_D]);
-
     fflush(stdout);
     close(client_socket);
 }   
 
 void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, int *ret_code, short *eohlCounter, bool *loop){
-    // if (*eohlCounter  && (*is_get_post_con_type_len & POST_R) == POST_R)
-    //     *eohlCounter += 1;
-    // printf("POST %d | GET %d | EOHL  %d\n", *eohlCounter == 0, *eohlCounter, stringcmp(header, EOHL));
     if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & GET_R) == GET_R){
         // printf("end of get \n");
         *loop = FALSE;
@@ -143,9 +142,11 @@ void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, i
 
     /* 
         checking for valid headers. and the context also.
-        because when the a GET request can't handle content-length and 
-        content-type header.i'm doing this because in my context 
-        this is useless and i don't need this. 
+        because i didn't made this server to handle extra data 
+        from get request.so, content-length and 
+        content-type header is not something that i need.
+        for that reason whenever a get request contents those headers
+        server sends not acceptable error.
     */
 
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[GET])) 
@@ -271,6 +272,7 @@ void * handle_connection(void* args){
     struct SERVER_CLIENT_FDS *server_client_fd = (struct SERVER_CLIENT_FDS*)args;
     // this function will parse the request from the slave.
     httpRequestHandler(server_client_fd->client, server_client_fd->server);
+
     close(server_client_fd->client);
     return NULL;
 }

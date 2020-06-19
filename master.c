@@ -1,4 +1,3 @@
-// #include "include/server.h"
 #include <server.h>
 
 int main(int argc, char const *argv[]){
@@ -16,7 +15,6 @@ int main(int argc, char const *argv[]){
 		// Waiting for new slave.
 		client_socket = accept_new_connection(server_socket);
 		
-		//
 		(*server_client_fd).client = client_socket;
 
 		pthread_t t;

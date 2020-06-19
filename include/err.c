@@ -47,9 +47,6 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
 
 	bzero(&tmp, sizeof(tmp));
 	
-	char tmp2[BUFSIZE];
-	bzero(&tmp, sizeof(tmp));
-
 	unsigned int size = 0;
 
     int count = 0;

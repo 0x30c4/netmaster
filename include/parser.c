@@ -89,12 +89,12 @@ char **split(const char *str, const char *d, int *len){
     and puts the readied buffer in buf.
     returns the number of bytes it have read.  
 */
-int readLine(int fd, char *buf){
-    bzero(buf, strlen(buf));
+int readLine(int fd, char buf[BUFSIZE]){
+    bzero(buf, sizeof(buf));
     char c[1];
     size_t bytes_read;
     int msgsize = 0;
-    bzero(&c, strlen(c));
+    bzero(&c, sizeof(c));
     while((bytes_read = read(fd, c, sizeof(c)))) {
         msgsize += bytes_read;
         strncat(buf, c, sizeof(c));
