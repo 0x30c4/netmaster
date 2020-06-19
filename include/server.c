@@ -11,8 +11,9 @@ int setup_sever(short port, int backlog){
 	//creating a server socket.
 	check((server_socket = socket(AF_INET, SOCK_STREAM, 0)), "Failed to create socket.");
 
+    bzero(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_addr.s_addr = htons(INADDR_ANY);
 	server_addr.sin_port = htons(port);
 
 	// binding a address.
@@ -33,7 +34,7 @@ int accept_new_connection(int server_socket){
 	int client_socket, addr_size = sizeof(SA_IN);
 	SA_IN client_addr; 
 	char client_addr_str[32];
-
+	bzero(&client_addr_str, sizeof(client_addr_str));
 	// waiting for new slave.
 	check((client_socket =
 		accept(server_socket, (SA*)&client_addr, (socklen_t*)&addr_size)), 
@@ -48,56 +49,6 @@ int accept_new_connection(int server_socket){
 
 	return client_socket;
 }
-
-
-// void readCFLF(int client_socket){
-
-// }
-
-// void *fileReader(int client_socket){
-
-// 	char buf[BUFSIZE];
-// 	size_t bytes_read;
-// 	int msgsize = 0;
-// 	char actualpath[100];
-//     bzero(&buf, sizeof(buf));
-    
-//     while((bytes_read = read(client_socket, buf+msgsize, sizeof(buf)-msgsize)))	{
-//     	msgsize += bytes_read;
-//     	if(msgsize > BUFSIZE-1 || buf[msgsize-1] == '\n') break;
-//     }
-
-//     check(bytes_read, "read error");
-//     buf[msgsize-1] = 0;
-
-//     printf("REQUEST: %s\n", buf);
-//     fflush(stdout);
-    
-//     if(realpath(buf, actualpath) == NULL){
-//     	printf("ERROR(bad path): %s\n", buf);
-//     	return NULL;
-//     }
-
-//     FILE *fp = fopen(actualpath, "r");
-//     if(fp == NULL){
-//     	printf("ERROR(open): %s\n", buf);
-//     	return NULL;
-//     }
-
-//     while((bytes_read = fread(buf, 1, BUFSIZE, fp)) > 0){
-//     	printf("Sending %zu bytes\n", bytes_read);
-//     	write(client_socket, buf, bytes_read);
-//     }
-    
-//     write(client_socket, "\n", 1);
-
-//     fclose(fp);
-//     printf("Closing connection.\n");
- 	
-//  	return NULL;
-// }
-
-
 
 // void with_select(int server_socket){
 

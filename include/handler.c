@@ -17,7 +17,7 @@ unsigned short CON_TYP = 0x08;
     checks if the file is accessible by the 
     server starter user and not a directory/special file.
 */
-int fileChecker(char *fn, unsigned long long int *size, int *file_type){
+int fileChecker(char *fn, unsigned long long int *size, short *file_type){
 
     // checking for path trivial attack.
     if(startsWith(fn, "/.") || startsWith(fn, ".") || 
@@ -67,58 +67,64 @@ int fileChecker(char *fn, unsigned long long int *size, int *file_type){
 
 // parsing, what kind of request is made by the slave
 void httpRequestHandler(int client_socket, int server_socket){
-    unsigned long long file_size = 0;
+    int size;
+    unsigned long long int file_size = 0;
     unsigned short is_get_post_con_type_len = 0x0;
-    int ret_code = -1;
-    int file_type = -1;
+    short ret_code = -1;
+    short file_type = -1;
     char buf[BUFSIZE];
     short eohlCounter = 0;
     bool loop = TRUE;
-    while(TRUE){
-        if(readLine(client_socket, buf) == 0) {
-            break;
-        }
-        if (stringcmp(buf, EOHL)) eohlCounter += 1;
 
+    while(TRUE){
+       /* 
+            the readLine() function read any thing from a FD 
+            until it hits a "\n".
+            this function was inspired by the python's readlines method. 
+       */
+        if((size = readLine(client_socket, buf, (size_t)BUFSIZE)) == 0) break;
+        // if(size == 1 && buf[0] == '\n') break;
+
+        /*
+            every time the "buf" variable is equal to "\r\n"
+            eohlCounter value is incised by one.
+            stringcmp() is a costume function for comparing 
+            two strings.
+        */
+        if (stringcmp(buf, EOHL)) {
+            eohlCounter += 1;
+            if (eohlCounter == 2) break;
+            if (eohlCounter == 1 && (is_get_post_con_type_len & GET_R) == GET_R) {
+                break;
+            }
+        }
+        
+        /*
+            httpReqestParser() is parses http request from the "buf"
+        */
         if (ret_code == -1) 
             httpReqestParser(buf, &is_get_post_con_type_len, &ret_code, &eohlCounter, &loop);
     }
-    dprintf(client_socket, "%s\n", "asdasdasdasdas");
-    dprintf(client_socket, "%s\n", "asdasdasdasdas");
-    dprintf(client_socket, "%s\n", "asdasdasdasdas");
-
     // client_socket = 1;
+
     // checking if the request doesn't end with a EOH. 
     if (eohlCounter == 0) ret_code = Bad_Request;
-    
+
     if (ret_code == -1)
         ret_code = requestValidity(&is_get_post_con_type_len);
 
     // if the return code is not changed then the file checker checks the file.
     if (ret_code == 0)
         ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);
-
     
     // sending the header
     headerSender(client_socket, file_type, file_size, ret_code);
 
-    // errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
-
     if (ret_code == OK) fileSender(client_socket, PARSED_FROM_HEADERS[FILE_NAME]);
-    // else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
-
-    // printf("%s\n", PARSED_FROM_HEADERS[FILE_NAME]);
-    // printf("%s\n", PARSED_FROM_HEADERS[COOKIE_D]);
-    // printf("%s\n", PARSED_FROM_HEADERS[POST_D]);
-
-    fflush(stdout);
+    else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
     close(client_socket);
-}   
-
-void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, int *ret_code, short *eohlCounter, bool *loop){
-    // if (*eohlCounter  && (*is_get_post_con_type_len & POST_R) == POST_R)
-    //     *eohlCounter += 1;
-    // printf("POST %d | GET %d | EOHL  %d\n", *eohlCounter == 0, *eohlCounter, stringcmp(header, EOHL));
+}
+void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, short *ret_code, short *eohlCounter, bool *loop){
     if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & GET_R) == GET_R){
         // printf("end of get \n");
         *loop = FALSE;
@@ -143,9 +149,11 @@ void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, i
 
     /* 
         checking for valid headers. and the context also.
-        because when the a GET request can't handle content-length and 
-        content-type header.i'm doing this because in my context 
-        this is useless and i don't need this. 
+        because i didn't made this server to handle extra data 
+        from get request.so, content-length and 
+        content-type header is not something that i need.
+        for that reason whenever a get request contents those headers
+        server sends not acceptable error.
     */
 
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[GET])) 
@@ -271,6 +279,7 @@ void * handle_connection(void* args){
     struct SERVER_CLIENT_FDS *server_client_fd = (struct SERVER_CLIENT_FDS*)args;
     // this function will parse the request from the slave.
     httpRequestHandler(server_client_fd->client, server_client_fd->server);
+
     close(server_client_fd->client);
     return NULL;
 }

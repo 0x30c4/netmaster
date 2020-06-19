@@ -2,6 +2,7 @@
 #define _ERR_H_
 
 #include "common.h"
+#include "parser.h"
 
 #define SOCKETERROR (-1)
 

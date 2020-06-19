@@ -30,8 +30,8 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
 	char tmp[BUFSIZE / 2];
 	size_t bytes_read;
 
-	bzero(&tmp, sizeof(tmp));
-	bzero(&buf, sizeof(buf));
+	bzero(&tmp, BUFSIZE / 2);
+	bzero(&buf, 1);
 
     if(realpath(ERROR_PAGE, tmp) == NULL){
     	printf("ERROR(bad path): %s\n", buf);
@@ -47,9 +47,6 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
 
 	bzero(&tmp, sizeof(tmp));
 	
-	char tmp2[BUFSIZE];
-	bzero(&tmp, sizeof(tmp));
-
 	unsigned int size = 0;
 
     int count = 0;
@@ -63,7 +60,6 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
     	starting_pos[i] = -1;
     	starting_pos_typ[i] = -1;
     }
-
     char ERROR_PAGE_VAR[2][11] = {"ERROR_NAME\0", "ERROR_TEXT\0"};
     while((bytes_read = fread(buf, 1, 1, file)) > 0){
 		if (ERROR_PAGE_VAR[0][0] == buf[0] || ERROR_PAGE_VAR[1][0] == buf[0])
@@ -121,9 +117,12 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
  		}
  		if (m) count++;
 
-    	if (!m)
-    		write(client_socket, buf, sizeof(buf));
+    	if (!m){
+            write(client_socket, buf, sizeof(buf));
+        }
     }
+    printf("done 1111111111\n");
+    dprintf(client_socket, "%s", EOH);
     fclose(file);
     return NULL;
 }

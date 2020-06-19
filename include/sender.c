@@ -44,7 +44,7 @@ void *fileSender(int client_socket, const char *filename){
 	bzero(&buf, sizeof(buf));
 
     if(realpath(filename, actualpath) == NULL){
-    	printf("ERROR(bad path): %s\n", buf);
+    	fprintf(stderr, "ERROR(bad path): %s\n", buf);
     	return NULL;
     }
 
@@ -54,13 +54,18 @@ void *fileSender(int client_socket, const char *filename){
     	fprintf(stderr, "ERROR(open): %s\n", actualpath);
     	return NULL;
     }
-
+    unsigned long int size = 0;
     while((bytes_read = fread(buf, 1, BUFSIZE, file)) > 0){
-    	// printf("Sending %zu bytes\n", bytes_read);
-    	write(client_socket, buf, bytes_read);
+    	size += bytes_read;
+        printf("Sending %zu bytes\n", bytes_read);
+    	// write(client_socket, buf, bytes_read);
+        dprintf(client_socket, "%s", buf);
+    	dprintf(2, "%s", buf);
     	// write(1, buf, bytes_read);
     }
     
+    printf("total sent %lu bytes\n", size);
+    dprintf(client_socket, "%s", EOH);
     fclose(file);
     // printf("Closing connection.\n");
     return NULL;
