@@ -168,8 +168,6 @@ ssize_t readLine(int fd, void *buffer, size_t n){
 //         msgsize += bytes_read;
 //         strncat(buf, c, sizeof(c));
 //         if(msgsize > (BUFSIZE / 2) - 1 || c[0] == '\n' || bytes_read == 0) break;
-    
-//     }
 //     return msgsize;
 // }
 

@@ -68,7 +68,7 @@ int fileChecker(char *fn, unsigned long long int *size, short *file_type){
 // parsing, what kind of request is made by the slave
 void httpRequestHandler(int client_socket, int server_socket){
     int size;
-    unsigned long long int file_size = 0;
+    unsigned long long file_size = 0;
     unsigned short is_get_post_con_type_len = 0x0;
     short ret_code = -1;
     short file_type = -1;
@@ -122,8 +122,10 @@ void httpRequestHandler(int client_socket, int server_socket){
 
     if (ret_code == OK) fileSender(client_socket, PARSED_FROM_HEADERS[FILE_NAME]);
     else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
+
     close(client_socket);
 }
+
 void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, short *ret_code, short *eohlCounter, bool *loop){
     if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & GET_R) == GET_R){
         // printf("end of get \n");
