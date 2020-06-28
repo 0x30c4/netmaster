@@ -103,7 +103,7 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
     	if (m && count == 0){
     		if (starting_pos_typ[count2]){
     			if (error_code >= 2 && error_code <= 4)
-    				dprintf(client_socket, "%s %s", ERROR_TYP_TXT[error_code], file_name);
+    				dprintf(client_socket, "%s <br>\"%s\"", ERROR_TYP_TXT[error_code], file_name);
     			else
     				dprintf(client_socket, "%s", ERROR_TYP_TXT[error_code]);
     		}
@@ -121,7 +121,6 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
             write(client_socket, buf, sizeof(buf));
         }
     }
-    printf("done 1111111111\n");
     dprintf(client_socket, "%s", EOH);
     fclose(file);
     return NULL;

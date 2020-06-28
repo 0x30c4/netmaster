@@ -8,13 +8,10 @@ const char CLOSE_GET_POST[22] = "Connection: close\0";
 
 const char CONTENT_TYPE[15] = "Content-Type: \0";// image/x-icon\r\n"; //application/octet-stream // text/x-c; charset=UTF-8 // image/png
 const char CONTENT_LENGTH[17] = "Content-Length: \0";
+
+
 // const char WWW_AUTHENTICATE[88] = "WWW-Authenticate: Basic realm=UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=\r\n";
-
-
-// {"text/html; charset=UTF-8\r\n", "text/htm; charset=UTF-8\r\n", 
-// "text/js; charset=UTF-8\r\n", "text/css; charset=UTF-8\r\n",
-// "text/txt; charset=UTF-8\r\n", "image/jpg", "image/jpge", "image/x-icon\r\n",
-//  "image/png"}
+// const char WWW_AUTHENTICATE2[88] = "Set-Cookie: Basic realm=UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=\r\n";
 
 void headerSender(int client_socket, int flag, unsigned long long int size, int status_code){
 	dprintf(client_socket, "%s%s%s%s%s", RESPONSE_GET_POST, STATUS_CODE[status_code], EOHL,
@@ -30,7 +27,9 @@ void headerSender(int client_socket, int flag, unsigned long long int size, int 
 		dprintf(client_socket, "%sapplication/octet-stream%s", CONTENT_TYPE, EOHL);
 	}
 
-	dprintf(client_socket, "%s%lld%s", CONTENT_LENGTH, size, EOHL);
+    if (status_code == OK)
+        dprintf(client_socket, "%s%lld%s", CONTENT_LENGTH, size, EOHL);
+	// dprintf(client_socket, "%s%s", WWW_AUTHENTICATE2, EOHL);
 	
 	dprintf(client_socket, "%s%s", CLOSE_GET_POST, EOH);
 }

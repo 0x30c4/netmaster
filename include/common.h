@@ -13,6 +13,7 @@
 #include <sys/stat.h>                                                                                                                          
 #include <fcntl.h>
 #include <sys/sysmacros.h>
+#include <sys/random.h>
 #include <pthread.h>
 #include <errno.h>
 #include <assert.h>

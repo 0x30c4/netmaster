@@ -116,7 +116,7 @@ void httpRequestHandler(int client_socket, int server_socket){
     // if the return code is not changed then the file checker checks the file.
     if (ret_code == 0)
         ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);
-    
+
     // sending the header
     headerSender(client_socket, file_type, file_size, ret_code);
 
