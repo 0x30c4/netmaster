@@ -33,7 +33,7 @@ int setup_sever(short port, int backlog){
 int accept_new_connection(int server_socket){
 	int client_socket, addr_size = sizeof(SA_IN);
 	SA_IN client_addr; 
-	char client_addr_str[32];
+	char client_addr_str[INET_ADDRSTRLEN];
 	bzero(&client_addr_str, sizeof(client_addr_str));
 	// waiting for new slave.
 	check((client_socket =
@@ -41,11 +41,13 @@ int accept_new_connection(int server_socket){
 		"Accept Failed.");
 
 	//getting the slave address
-	inet_ntop(AF_INET, &client_addr, client_addr_str, 100);
+	struct sockaddr_in* pV4Addr = (struct sockaddr_in*)&client_addr;
+	struct in_addr ipAddr = pV4Addr->sin_addr;
+	inet_ntop(AF_INET, &ipAddr, client_addr_str, INET_ADDRSTRLEN);
 
 	// need to change this.
-	printf("%s%s%s[+]%s %sA new slave is connected %s%s%s\n", 
-		BOLD, BLINK, LIGHTGREEN, RESETALL, BOLD, LIGHTGREEN, client_addr_str, RESETALL);
+	printf("%s%s%s[+]%s %sA new slave is connected %s%s:%d%s\n", 
+		BOLD, BLINK, LIGHTGREEN, RESETALL, BOLD, LIGHTGREEN, client_addr_str, ntohs(client_addr.sin_port), RESETALL);
 
 	return client_socket;
 }

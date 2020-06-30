@@ -11,3 +11,4 @@ int readLineFP(FILE *, char *);
 void stringcpy(char dest[BUFSIZE], char *str);
 char *strlow(char str[BUFSIZE]);
 bool isInArray(char **arry, char com[BUFSIZE], int array_size);
+int contentLength(char buf[BUFSIZE / 2]);

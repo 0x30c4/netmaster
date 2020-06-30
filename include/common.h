@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <time.h>
+#include <signal.h>
 
 /*
 	Server header macros and flags.

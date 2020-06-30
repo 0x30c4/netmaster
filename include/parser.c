@@ -202,6 +202,15 @@ void stringcpy(char dest[BUFSIZE], char *str){
     }
 }
 
+int contentLength(char buf[BUFSIZE / 2]){
+    char num[10];
+    bzero(&num, 10);
+    slice_str(buf, num, 15, strlen(buf));
+    if (atoi(num) > BUFSIZE)
+        return -1;
+    return atoi(num);
+}
+
 char *strlow(char str[BUFSIZE]){
     int i;
 

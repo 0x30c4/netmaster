@@ -17,21 +17,20 @@ void headerSender(int client_socket, int flag, unsigned long long int size, int 
 	dprintf(client_socket, "%s%s%s%s%s", RESPONSE_GET_POST, STATUS_CODE[status_code], EOHL,
 											SERVER_DETAILS, EOHL);
 
-	if (TEXT >= flag || status_code != OK){
+	if (TEXT >= flag || status_code != OK)
 		dprintf(client_socket, "%stext/%s; charset=UTF-8%s", CONTENT_TYPE, 
 			(status_code != OK) ? FILE_EXT[HTML] : FILE_EXT[flag], EOHL);
-	}else if (IMAGE_ICO >= flag){
+	else if (IMAGE_ICO >= flag)
 		dprintf(client_socket, "%simage/x-%s%s%s", CONTENT_TYPE, FILE_EXT[flag], 
 			(flag == 8) ? "n" : "", EOHL);
-	}else if (flag == OCTET_STREAM){
+	else if (flag == OCTET_STREAM)
 		dprintf(client_socket, "%sapplication/octet-stream%s", CONTENT_TYPE, EOHL);
-	}
 
     if (status_code == OK)
         dprintf(client_socket, "%s%lld%s", CONTENT_LENGTH, size, EOHL);
 	// dprintf(client_socket, "%s%s", WWW_AUTHENTICATE2, EOHL);
 	
-	dprintf(client_socket, "%s%s", CLOSE_GET_POST, EOH);
+    dprintf(client_socket, "%s%s", CLOSE_GET_POST, EOH);
 }
 
 void *fileSender(int client_socket, const char *filename){
@@ -56,14 +55,14 @@ void *fileSender(int client_socket, const char *filename){
     unsigned long int size = 0;
     while((bytes_read = fread(buf, 1, BUFSIZE, file)) > 0){
     	size += bytes_read;
-        printf("Sending %zu bytes\n", bytes_read);
+        // printf("Sending %zu bytes\n", bytes_read);
     	// write(client_socket, buf, bytes_read);
         dprintf(client_socket, "%s", buf);
-    	dprintf(2, "%s", buf);
+    	// dprintf(2, "%s", buf);
     	// write(1, buf, bytes_read);
     }
     
-    printf("total sent %lu bytes\n", size);
+    // printf("total sent %lu bytes\n", size);
     dprintf(client_socket, "%s", EOH);
     fclose(file);
     // printf("Closing connection.\n");

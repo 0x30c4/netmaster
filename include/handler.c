@@ -8,6 +8,7 @@ const char FILE_EXT[9][6] = {"html\0", "htm\0", "js\0", "css\0", "txt\0",
 
 // for bit masking the values 
 
+int CONTENT_LEN = -1;
 unsigned short GET_R   = 0x01;
 unsigned short POST_R  = 0x02;
 unsigned short CON_LEN = 0x04;
@@ -55,7 +56,6 @@ int fileChecker(char *fn, unsigned long long int *size, short *file_type){
         }
     }
     if (*file_type == -1) *file_type = OCTET_STREAM;
-    // printf("%d\n", *file_type);
     //checking the file permission.
     if (sb.st_mode & S_IRUSR){
         // strncpy(file, fn, strlen(fn));
@@ -76,45 +76,60 @@ void httpRequestHandler(int client_socket, int server_socket){
     short eohlCounter = 0;
     bool loop = TRUE;
 
-    while(TRUE){
+    while(loop){
        /* 
             the readLine() function read any thing from a FD 
             until it hits a "\n".
             this function was inspired by the python's readlines method. 
        */
         if((size = readLine(client_socket, buf, (size_t)BUFSIZE)) == 0) break;
-        // if(size == 1 && buf[0] == '\n') break;
-
+        // printf("%d | %s", size,buf);
         /*
             every time the "buf" variable is equal to "\r\n"
             eohlCounter value is incised by one.
             stringcmp() is a costume function for comparing 
             two strings.
         */
-        if (stringcmp(buf, EOHL)) {
-            eohlCounter += 1;
-            if (eohlCounter == 2) break;
-            if (eohlCounter == 1 && (is_get_post_con_type_len & GET_R) == GET_R) {
-                break;
-            }
+        if (stringcmp(buf, EOHL)) eohlCounter += 1;
+        printf("%d\n", eohlCounter);
+        if (eohlCounter == 1 && (is_get_post_con_type_len & GET_R) == GET_R)
+            loop = FALSE;
+
+        // printf("%d\n", (is_get_post_con_type_len & POST_R) == POST_R && eohlCounter == 1);
+        if ((is_get_post_con_type_len & POST_R) == POST_R && eohlCounter == 1 &&
+                !stringcmp(buf, EOHL)){
+            PARSED_FROM_HEADERS[POST_D] = strndup(buf, strlen(buf));
+            printf("%s\n", buf);
+            break;
         }
         
+
         /*
             httpReqestParser() is parses http request from the "buf"
         */
-        if (ret_code == -1) 
+        if (ret_code == -1 && eohlCounter == 0)
             httpReqestParser(buf, &is_get_post_con_type_len, &ret_code, &eohlCounter, &loop);
     }
     // client_socket = 1;
 
     // checking if the request doesn't end with a EOH. 
-    if (eohlCounter == 0) ret_code = Bad_Request;
+    if (eohlCounter == 0){
+        printf("Bad_Request 5\n");
+        ret_code = Bad_Request;
+    }
 
     if (ret_code == -1)
         ret_code = requestValidity(&is_get_post_con_type_len);
 
+    /*
+        checking if the posted data is valid or not.
+        if it's valid then it checks the pass code.
+    */
+    if (ret_code == OK || ret_code == -1)
+        ret_code = postDataHandler(PARSED_FROM_HEADERS[POST_D]);
+
     // if the return code is not changed then the file checker checks the file.
-    if (ret_code == 0)
+    if (ret_code == OK)
         ret_code = fileChecker(PARSED_FROM_HEADERS[FILE_NAME], &file_size, &file_type);
 
     // sending the header
@@ -123,27 +138,21 @@ void httpRequestHandler(int client_socket, int server_socket){
     if (ret_code == OK) fileSender(client_socket, PARSED_FROM_HEADERS[FILE_NAME]);
     else errorPageSender(client_socket, ret_code, PARSED_FROM_HEADERS[FILE_NAME]);
 
+    // freeing the allocated memory occupied by PARSED_FROM_HEADERS array
+    for (int i = 0; i < 3; ++i){
+        if (PARSED_FROM_HEADERS[i] != "\0")
+            PARSED_FROM_HEADERS[i] = "\0";
+    }
     close(client_socket);
 }
 
 void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, short *ret_code, short *eohlCounter, bool *loop){
-    if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & GET_R) == GET_R){
-        // printf("end of get \n");
-        *loop = FALSE;
-        return NULL;
-    }
-    if ((*eohlCounter) == 2) {
-        // printf("end of post \n");
-        *loop = FALSE;
-        return NULL;
-    }
-
-    if(!endsWith(header, EOHL)) {
-        printf("Bad_Request 3\n");
+    if((!endsWith(header, EOHL) && (*is_get_post_con_type_len & POST_R) == POST_R) &&
+        *eohlCounter != 1) {
+        printf("Bad_Request 3 | %s\n", header);
         *ret_code = Bad_Request;
         return NULL;
     }
-
     int len_split = 0;
 
     len_split = 0;
@@ -161,7 +170,7 @@ void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, s
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[GET])) 
         *is_get_post_con_type_len = (GET_R | *is_get_post_con_type_len);
 
-    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[POST])) 
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[POST]))
         *is_get_post_con_type_len = (POST_R | *is_get_post_con_type_len);
 
     if (startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTLENGTH])) 
@@ -219,27 +228,19 @@ void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, s
             return NULL;
         }
     }
-    if (startsWith(header, "Cookie:")){
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[COOKIE])){
         PARSED_FROM_HEADERS[COOKIE_D] = strndup(header, strlen(header));
         return NULL;
     }
 
-    if ((*eohlCounter) == 1 && (*is_get_post_con_type_len & POST_R) == POST_R){
-        PARSED_FROM_HEADERS[POST_D] = strndup(header, strlen(header));
+    if (startsWith(header, VALID_HEADERS_FROM_SLAVE[CONTENTLENGTH]) && (*is_get_post_con_type_len & POST_R) == POST_R){
+        CONTENT_LEN = contentLength(header);
         return NULL;
     }
     return NULL;
 }
 
 int requestValidity(unsigned short *is_get_post_con_type_len){
-    // printf("%d\n", (*is_get_post_con_type_len & GET_R) == GET_R &&
-    //     ((*is_get_post_con_type_len & CON_LEN) == CON_LEN
-    //     || (*is_get_post_con_type_len & CON_TYP) == CON_TYP));
-
-    // printf("%d\n", (*is_get_post_con_type_len & POST_R) == POST_R &&
-    //     ((*is_get_post_con_type_len & CON_LEN) != CON_LEN ||
-    //             (*is_get_post_con_type_len & CON_TYP) != CON_TYP));
-
     //checking if the get request have any none necessary headers. 
     if ((*is_get_post_con_type_len & GET_R) == GET_R &&
         ((*is_get_post_con_type_len & CON_LEN) == CON_LEN
@@ -258,20 +259,20 @@ int requestValidity(unsigned short *is_get_post_con_type_len){
     return OK;
 }
 
-char *cookieHandler(char *cookie){
-    // printf("%s\n", cookie);
-    // int cookie_v_size = 0;
-    // char **cookie_v = split(cookie, " ", &cookie_v_size);
-    // if (cookie_v_size != 2) return FALSE;
-    // if(startsWith(cookie_v[1], "_aed=") && strlen(cookie_v[1]) == 23){
-    //     slice_str(cookie_v[1], cookie, 5, 23);
-    //     for (int i = 0; i < 4; ++i){
-    //     }
-    //     // printf("%s\n", cookie);
-    // }
-    return "NULL";
+int postDataHandler(char buf[BUFSIZE]){
+    int buf_len = strlen(buf);
+    if (buf_len > (BUFSIZE / 4)) return Not_Acceptable;
+    // if (buf_len != CONTENT_LEN) return Bad_Request;
+    if (!startsWith(buf, "pass=")) return Not_Acceptable;
+    char pass[BUFSIZE / 128];
+    bzero(&pass, BUFSIZE / 128);
+    slice_str(buf, pass, 5, buf_len);
+    if (stringcmp(pass, "hello123"))
+        return OK;
+    else
+        return Unauthorized;
+    // fprintf(stderr, "%s\n", pass);
 }
-
 
 void * handle_connection(void* args){
     // handling the slaves.

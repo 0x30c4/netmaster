@@ -6,10 +6,10 @@ int main(int argc, char const *argv[]){
 	// creating server socket.
 	server_socket = setup_sever(SERVERPORT, SERVER_BACKLOG);
 
-	// test
 	struct SERVER_CLIENT_FDS *server_client_fd;
-	(*server_client_fd).server = server_socket;
-	
+
+	// assigning the server socket to the struct
+	(*server_client_fd).server = server_socket;	
 
 	while(TRUE){
 		// Waiting for new slave.
@@ -19,15 +19,9 @@ int main(int argc, char const *argv[]){
 
 		pthread_t t;
 
-		// int *pclient = malloc(sizeof(int));
-
-		// *pclient = client_socket;
-
-		// pthread_create(&t, NULL, handle_connection, pclient);
 		pthread_create(&t, NULL, handle_connection, server_client_fd);
 
 		// pthread_join(t, NULL);
-	    // break;
 	}
 	return 0;
 }
