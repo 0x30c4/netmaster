@@ -15,7 +15,6 @@ int setup_sever(short port, int backlog){
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = htons(INADDR_ANY);
 	server_addr.sin_port = htons(port);
-
 	// binding a address.
 	check(bind(server_socket, (SA*)&server_addr, sizeof(server_addr)), "Bind Failed.");
 

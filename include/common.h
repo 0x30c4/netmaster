@@ -19,6 +19,8 @@
 #include <assert.h>
 #include <time.h>
 #include <signal.h>
+#include <getopt.h>
+#include <regex.h>
 
 /*
 	Server header macros and flags.
@@ -78,9 +80,11 @@
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
 
-struct SERVER_CLIENT_FDS{
-	int server;
-	int client;
+struct SERVER_CLIENT_DATA{
+	short server;
+	short client;
+	char  special_dir[BUFSIZE / 4];
+	char  password[BUFSIZE / 128];
 };
 
 // defining the end of header terminators .

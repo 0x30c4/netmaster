@@ -4,19 +4,22 @@ CFLAGS = -Wall -c -g
 all: output rmdotos
 
 run: 
-	./tcps
+	./tcps 
 
-output: master.o server.o parser.o err.o handler.o sender.o common.o
-	$(CC) -pthread master.o server.o parser.o err.o handler.o sender.o common.o -o tcps
+# output: master.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o
+# 	$(CC) -pthread master.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o -o tcps
 
-# output: worker.o server.o parser.o err.o handler.o sender.o common.o 
-# 	$(CC) -pthread worker.o server.o parser.o err.o handler.o sender.o common.o -o tcps
+output: worker.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o 
+	$(CC) -pthread worker.o server.o parser.o err.o handler.o sender.o common.o argumentparser.o -o tcps
 
 worker.o: worker.c
 	$(CC) $(CFLAGS) -Iinclude worker.c
 
 master.o: master.c
 	$(CC) $(CFLAGS) -Iinclude master.c
+
+argumentparser.o: include/argumentparser.c include/argumentparser.h
+	$(CC) $(CFLAGS) include/argumentparser.c
 
 server.o: include/server.c include/server.h
 	$(CC) $(CFLAGS) include/server.c

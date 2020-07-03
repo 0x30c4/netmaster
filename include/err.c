@@ -15,6 +15,27 @@ const char ERROR_TYP_TXT[7][32] = {
 								   "Server error, [Internal]!!@#$!!\0"
 								   };
 
+
+void print_usage(const char *PN){
+    // "Specify document root <docroot> for built-in web server"
+    fprintf(stderr, "usage: %s -p port -P password -S special_dir [-t docroot]\n", PN);
+    exit(EXIT_FAILURE);
+}
+
+int port_parser(char *p){
+    int i = strtol(p, NULL, 10);
+    if (i != 0 && i > 0){
+        if (i > 65535 || i < 0){
+            fprintf(stderr, "NOT A VALID PORT!!!\n");
+            exit(1);        
+        }
+        return i;
+    }else{
+        fprintf(stderr, "NOT A VALID PORT!!!\n");
+        exit(1);
+    }
+}
+
 int check(int exp, const char *msg){
 	if (exp == SOCKETERROR){
 		fprintf(stderr, "%s%s%s", RED, UNDERLINE, BOLD);

@@ -37,5 +37,7 @@ extern const char STATUS_CODE[7][26];
 
 int check(int, const char *);
 void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]);
+void print_usage(const char *PN);
+int port_parser(char *p);
 // int checkIfNull(void *, const char *)
 #endif
