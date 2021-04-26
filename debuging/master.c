@@ -5,6 +5,7 @@
 // 414 (Request-URI Too Long)
 
 int parse(const char* line);
+int strpcmp(const char * s1, const char * s2, size_t cmpto);
 
 int main(int argc, char const *argv[]){
 	// parse("GET /path/script.cgi?field1=value1&field2=value2&fbclid=IwAR0gw6sBY47CIVxty4Qw8brrUnTbpRrh-uaKaP4nXsT9NckRGKSCHeTWReo HTTP/1.1");
@@ -15,16 +16,36 @@ int main(int argc, char const *argv[]){
 
 	int rec = 0, header_no = 0;
 
-	while ((rec = readCRLF(0, header)) > 0){
-		if (header_no == 0){
-			parse(header);
-			printf("%d\n", rec);
+	while (TRUE){
+		rec = readCRLF(0, header);
+		if (! (rec > 0)){
+			printf("%d || %s", rec, header);
+			break;
+		}else{
+			if (header_no == 0){
+				parse(header);
+				printf("%s", header);
+				break;
+			}
 		}
-
-		
 		bzero(header, MAX_HEADER);
 		header_no++;
 	}
+	
+
+
+	// parse(header);
+	// printf("%s", header);
+	// while ((rec = readCRLF(0, header)) > 0){
+	// 	if (header_no == 0){
+	// 		parse(header);
+	// 		printf("%d\n", rec);
+	// 	}else{
+	// 		printf("%s", header);
+	// 	}
+	// 	bzero(header, MAX_HEADER);
+	// 	header_no++;
+	// }
 	
 
 
@@ -50,22 +71,23 @@ int parse(const char * line){
     query[sizeof(query)] = 0;
 
 	/* header type */
-	start_of_path = strchr(line, ' ');
-	printf("%c", INDEX_FILE[0]);
-	// maek str pointer cmp
-	do {
-		printf("%c-\n", (char)(*line++));
-	}while (*start_of_path != *line);
+	strpcmp(line, "GET", 3);
 
+	
 
     /*Print */
-    // printf("%s %ld\n", query, sizeof(query));
-    // printf("%s %ld\n", path, sizeof(path));
+    printf("%s %ld\n", query, sizeof(query));
+    printf("%s %ld\n", path, sizeof(path));
 
-	// printf("\n%c", (char)(*start_of_path--));
-	// printf("\n%c", (char)(*start_of_path--));
-	// printf("\n%c", (char)(*start_of_path--));
-	// printf("\n%c", (char)(*start_of_path--));
-	// printf("\n%d\n", *line == *start_of_path--);
 	return 0;
+}
+
+int strpcmp(const char * s1, const char * s2, size_t cmpto){
+
+	for (size_t i = 0; i < cmpto; i++){
+		if ((char)(*s1++) != (char)(*s2++))
+			return FALSE;
+	}
+	
+	return TRUE;
 }
