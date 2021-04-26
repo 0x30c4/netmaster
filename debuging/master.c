@@ -18,42 +18,29 @@ int main(int argc, char const *argv[]){
 
 	while (TRUE){
 		rec = readCRLF(0, header);
-		if (! (rec > 0)){
-			printf("%d || %s", rec, header);
+		if (rec < 0){
+			printf("%d || %s --", rec, header);
 			break;
 		}else{
 			if (header_no == 0){
-				parse(header);
-				printf("%s", header);
+				rec = parse(header);
+				if (rec != 0){
+					printf("HEADER ERROR!\n");
+					break;
+				}
 				break;
 			}
 		}
 		bzero(header, MAX_HEADER);
 		header_no++;
 	}
-	
-
-
-	// parse(header);
-	// printf("%s", header);
-	// while ((rec = readCRLF(0, header)) > 0){
-	// 	if (header_no == 0){
-	// 		parse(header);
-	// 		printf("%d\n", rec);
-	// 	}else{
-	// 		printf("%s", header);
-	// 	}
-	// 	bzero(header, MAX_HEADER);
-	// 	header_no++;
-	// }
-	
-
-
 	return 0;
 }
 
 int parse(const char * line){
     /* Find out where everything is */
+	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
+
     const char *start_of_path = strchr(line, ' ') + 1;
     const char *start_of_query = strchr(start_of_path, '?');
     const char *end_of_query = strchr(start_of_query, ' ');
@@ -61,7 +48,7 @@ int parse(const char * line){
     /* Get the right amount of memory */
     char path[start_of_query - start_of_path];
     char query[end_of_query - start_of_query];
-
+ 
     /* Copy the strings into our memory */
     strncpy(path, start_of_path,  start_of_query - start_of_path);
     strncpy(query, start_of_query, end_of_query - start_of_query);
@@ -71,7 +58,6 @@ int parse(const char * line){
     query[sizeof(query)] = 0;
 
 	/* header type */
-	strpcmp(line, "GET", 3);
 
 	
 
