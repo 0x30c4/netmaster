@@ -4,7 +4,7 @@
 
 // 414 (Request-URI Too Long)
 
-int PathChecker(const char * path);
+int PathChecker(const char * path, char * req_file);
 int GetParser(const char* line);
 int strpcmp(const char * s1, const char * s2, size_t cmpto);
 
@@ -93,7 +93,8 @@ int GetParser(const char * line){
 	if (path_len + strlen(SERVER_ROOT) >= PATH_MAX - 1)
 		return URL_TOO_LONG;
 
-	PathChecker(path);
+	char *file = NULL;
+	PathChecker(path, file);
     /*Print */
     // printf("%s %ld\n", query, sizeof(query));
     // printf("%s %ld\n", path, sizeof(path));
@@ -101,9 +102,9 @@ int GetParser(const char * line){
 	return 0;
 }
 
-int PathChecker(const char * path){
+int PathChecker(const char * path, char * req_file){
 
-	char * req_file = calloc(strlen(SERVER_ROOT) + strlen(path), 1);
+	req_file = calloc(strlen(SERVER_ROOT) + strlen(path), 1);
 	
 	sprintf(req_file, "%s/%s", SERVER_ROOT, path);
 
@@ -111,7 +112,9 @@ int PathChecker(const char * path){
 
 	struct stat sb;
 
-	printf("stat: %d\n", stat(req_file, &sb));
+	stat(req_file, &sb);
+
+	// printf("stat: %d\n", stat(req_file, &sb));
 	// printf("\t%d\n", sb.st_mode & S_IFMT == S_IFREG);
 	switch (sb.st_mode & S_IFMT) {
 		case S_IFBLK:  return Forbidden;
@@ -119,7 +122,7 @@ int PathChecker(const char * path){
 		case S_IFDIR:
 			sprintf(req_file, "%s/%s/%s", SERVER_ROOT, path, INDEX_FILE);
 			if(access(req_file, F_OK) == -1) return Not_Found;
-			printf("%s\n", req_file);
+			// printf("%s\n", req_file);
 			// return Forbidden; break;
 		case S_IFIFO:  return Forbidden;
 		case S_IFLNK:  return Forbidden;
@@ -128,7 +131,7 @@ int PathChecker(const char * path){
     	default:       return Forbidden;
     }
 
-	printf("%s \n", req_file);
+	// printf("%s \n", req_file);
 	return 0;
 
 }
