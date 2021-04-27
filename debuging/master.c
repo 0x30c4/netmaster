@@ -16,6 +16,10 @@ int main(int argc, char const *argv[]){
 
 	int rec = 0, header_no = 0;
 
+
+	// printf("%s", strstr("/rnd/../ad../asd..asd/..../..././.../..", "/../") != NULL);
+
+	// exit(-1);
 	while (TRUE){
 		rec = readCRLF(0, header);
 		if (rec < 0){
@@ -25,7 +29,7 @@ int main(int argc, char const *argv[]){
 			if (header_no == 0){
 				rec = parse(header);
 				if (rec != 0){
-					printf("HEADER ERROR!\n");
+					printf("HEADER ERROR! %d\n", rec);
 					break;
 				}
 				break;
@@ -38,29 +42,42 @@ int main(int argc, char const *argv[]){
 }
 
 int parse(const char * line){
-    /* Find out where everything is */
+	/* header type */
+	// todo change str to var for opt.
 	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
+	if (!endsWith(line, "HTTP/1.1\r\n") && !endsWith(line, "HTTP/2\r\n")) return MALFORMED_HADER;
+    
+	/* Find out where everything is */
 
     const char *start_of_path = strchr(line, ' ') + 1;
     const char *start_of_query = strchr(start_of_path, '?');
     const char *end_of_query = strchr(start_of_query, ' ');
 
+	int path_len, query_len;
+	path_len = start_of_query - start_of_path; 
+	query_len = end_of_query - start_of_query;
     /* Get the right amount of memory */
-    char path[start_of_query - start_of_path];
-    char query[end_of_query - start_of_query];
+    char path[path_len];
+    char query[query_len];
  
     /* Copy the strings into our memory */
-    strncpy(path, start_of_path,  start_of_query - start_of_path);
-    strncpy(query, start_of_query, end_of_query - start_of_query);
+    strncpy(path, start_of_path,  path_len);
+    strncpy(query, start_of_query, query_len);
 
     /* Null terminators (because strncpy does not provide them) */
     path[sizeof(path)] = 0;
     query[sizeof(query)] = 0;
 
-	/* header type */
-
+	// error checking 
+	if (!startsWith(path, "/"))
+		return MALFORMED_HADER;
 	
+	if (strstr(path, "/./") != NULL || strstr(path, "/../") != NULL)
+		return PATH_ATTACK;
 
+	*start_of_path++;
+	bzero(path, path_len);
+    strncpy(path, start_of_path,  path_len - 1);
     /*Print */
     printf("%s %ld\n", query, sizeof(query));
     printf("%s %ld\n", path, sizeof(path));
