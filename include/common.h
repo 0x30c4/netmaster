@@ -21,11 +21,22 @@
 #include <signal.h>
 #include <getopt.h>
 #include <regex.h>
+#include <limits.h>
 
 /*
 	Server header macros and flags.
 */
 #define BUFSIZE 4096 // Buffer size.
+
+/*
+	Max url size 2048
+	Max client header size 3072
+
+*/
+#define MAX_URL 2048
+#define MAX_HEADER 3072
+#define MAX_FILE_NAME 254
+#define MAX_DIR_NAME 254
 
 // PARSED_FROM_HEADERS array index. 
 #define FILE_NAME 0

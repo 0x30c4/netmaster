@@ -92,7 +92,7 @@ void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]
     	}else
     		m = FALSE;
 
-    	if (m) strncat(tmp, buf, sizeof(buf));
+    	// if (m) strncat(tmp, buf, sizeof(buf));
     	
     	// printf("%d", strlen(tmp));
     	if (count == 10 && strlen(tmp) == 10 && count2 < 10) {

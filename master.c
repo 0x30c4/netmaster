@@ -1,4 +1,4 @@
-#include <server.h>
+#include "include/server.h"
 #include "include/argumentparser.h"
 
 int main(int argc, char const *argv[]){

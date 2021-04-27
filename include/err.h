@@ -23,6 +23,8 @@
 #define Not_Acceptable			5 // not send this to the client.
 #define Internal_Server_Error   6 // server error
 
+
+// #define HEADER_TOO_LONG 7 // too long header
 // http error page 
 #define ERROR_PAGE "error/error.html"
 // #define OK                    	200 // every thing is ok

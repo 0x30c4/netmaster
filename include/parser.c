@@ -153,6 +153,67 @@ ssize_t readLine(int fd, void *buffer, size_t n){
     return totRead;
 }
 
+
+ssize_t readCRLF(int fd, void *buffer){
+
+    ssize_t numRead;                    /* # of bytes fetched by last read() */
+    size_t totRead;                     /* Total bytes read so far */
+    char *buf;
+    char ch;
+
+    if (MAX_HEADER <= 0 || buffer == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    buf = buffer;                       /* No pointer arithmetic on "void *" */
+
+    totRead = 0;
+
+    bool prev_cr = FALSE;
+    for (;;) {
+        
+        numRead = read(fd, &ch, 1);
+
+        if (numRead == -1) {
+            if (errno == EINTR)         /* Interrupted --> restart read() */
+                continue;
+            else
+                return -1;              /* Some other error */
+
+        } else if (numRead == 0) {      /* EOF */
+            if (totRead == 0)           /* No bytes read; return 0 */
+                return 0;
+            else                        /* Some bytes read; add '\0' */
+                break;
+
+        } else {                        /* 'numRead' must be 1 if we get here */
+            if (totRead < MAX_HEADER - 1) {      /* Discard > (n - 1) bytes */
+                totRead++;
+                *buf++ = ch;
+            }else
+                return HEADER_TOO_LONG;
+
+            if (ch == '\n' && prev_cr)
+                break;
+            else if ((ch == '\n' && !prev_cr) || (ch != '\n' && prev_cr))
+                return MALFORMED_HADER;
+
+            if (ch == '\r')
+                prev_cr = TRUE;
+            else if (ch != '\r')
+                prev_cr = FALSE;
+        }
+    }
+    *buf = '\0';
+
+    // printf("<< %d - <<< ", endsWith(buffer, "\r\n"));
+    // if (((char *)buffer)[totRead] != '\n' || ((char *)buffer)[totRead-1] != '\r' )
+    //     return MALFORMED_HADER;
+
+    return totRead;
+}
+
 /* 
     reads from a file descriptor until it gets a line feed.
     and puts the readied buffer in buf.

@@ -4,12 +4,19 @@
 
 // 414 (Request-URI Too Long)
 
-int parse(const char* line);
+int PathChecker(const char * path);
+int GetParser(const char* line);
 int strpcmp(const char * s1, const char * s2, size_t cmpto);
+
+// check if SERVER_ROOT is valid dir in the context of this program
+char SERVER_ROOT[PATH_MAX];
 
 int main(int argc, char const *argv[]){
 	// parse("GET /path/script.cgi?field1=value1&field2=value2&fbclid=IwAR0gw6sBY47CIVxty4Qw8brrUnTbpRrh-uaKaP4nXsT9NckRGKSCHeTWReo HTTP/1.1");
 
+	bzero(SERVER_ROOT, PATH_MAX);
+	char *SR = "/root/CodeZ/C/netmaster/server_root\0";
+	strncpy(SERVER_ROOT, SR, 35);
 	char header[MAX_HEADER];
 
 	bzero(header, MAX_HEADER);
@@ -27,7 +34,7 @@ int main(int argc, char const *argv[]){
 			break;
 		}else{
 			if (header_no == 0){
-				rec = parse(header);
+				rec = GetParser(header);
 				if (rec != 0){
 					printf("HEADER ERROR! %d\n", rec);
 					break;
@@ -41,7 +48,7 @@ int main(int argc, char const *argv[]){
 	return 0;
 }
 
-int parse(const char * line){
+int GetParser(const char * line){
 	/* header type */
 	// todo change str to var for opt.
 	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
@@ -56,6 +63,10 @@ int parse(const char * line){
 	int path_len, query_len;
 	path_len = start_of_query - start_of_path; 
 	query_len = end_of_query - start_of_query;
+	
+	if (path_len >= MAX_URL - 1)
+		return URL_TOO_LONG;
+
     /* Get the right amount of memory */
     char path[path_len];
     char query[query_len];
@@ -78,11 +89,27 @@ int parse(const char * line){
 	*start_of_path++;
 	bzero(path, path_len);
     strncpy(path, start_of_path,  path_len - 1);
+
+	if (path_len + strlen(SERVER_ROOT) >= PATH_MAX - 1)
+		return URL_TOO_LONG;
+
+	PathChecker(path);
     /*Print */
     printf("%s %ld\n", query, sizeof(query));
     printf("%s %ld\n", path, sizeof(path));
 
 	return 0;
+}
+
+int PathChecker(const char * path){
+
+	char req_file[strlen(SERVER_ROOT) + ]
+
+
+	printf("%s\n", SERVER_ROOT);
+
+	return 0;
+
 }
 
 int strpcmp(const char * s1, const char * s2, size_t cmpto){
@@ -94,3 +121,4 @@ int strpcmp(const char * s1, const char * s2, size_t cmpto){
 	
 	return TRUE;
 }
+// 413 - The request has exceeded the max length allowed
