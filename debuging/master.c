@@ -95,19 +95,40 @@ int GetParser(const char * line){
 
 	PathChecker(path);
     /*Print */
-    printf("%s %ld\n", query, sizeof(query));
-    printf("%s %ld\n", path, sizeof(path));
+    // printf("%s %ld\n", query, sizeof(query));
+    // printf("%s %ld\n", path, sizeof(path));
 
 	return 0;
 }
 
 int PathChecker(const char * path){
 
-	char req_file[strlen(SERVER_ROOT) + ]
+	char * req_file = calloc(strlen(SERVER_ROOT) + strlen(path), 1);
+	
+	sprintf(req_file, "%s/%s", SERVER_ROOT, path);
 
+	if(access(req_file, F_OK) == -1) return Not_Found;
 
-	printf("%s\n", SERVER_ROOT);
+	struct stat sb;
 
+	printf("stat: %d\n", stat(req_file, &sb));
+	// printf("\t%d\n", sb.st_mode & S_IFMT == S_IFREG);
+	switch (sb.st_mode & S_IFMT) {
+		case S_IFBLK:  return Forbidden;
+		case S_IFCHR:  return Forbidden;
+		case S_IFDIR:
+			sprintf(req_file, "%s/%s/%s", SERVER_ROOT, path, INDEX_FILE);
+			if(access(req_file, F_OK) == -1) return Not_Found;
+			printf("%s\n", req_file);
+			// return Forbidden; break;
+		case S_IFIFO:  return Forbidden;
+		case S_IFLNK:  return Forbidden;
+		case S_IFREG:  break;
+		case S_IFSOCK: return Forbidden;
+    	default:       return Forbidden;
+    }
+
+	printf("%s \n", req_file);
 	return 0;
 
 }
