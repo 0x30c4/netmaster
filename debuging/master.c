@@ -10,13 +10,26 @@ int strpcmp(const char * s1, const char * s2, size_t cmpto);
 
 // check if SERVER_ROOT is valid dir in the context of this program
 char SERVER_ROOT[PATH_MAX];
+int SERVER_ROOT_LEN = 0;
+
+// struct SERVER_ROOT_DATA_{
+// 	char *SERVER_ROOT;
+// 	size_t SERVER_ROOT_LEN;
+// };
+
+// typedef struct SERVER_ROOT_DATA_ SERVER_ROOT_DATA;
+
+// SERVER_ROOT_DATA *SVR;
 
 int main(int argc, char const *argv[]){
 	// parse("GET /path/script.cgi?field1=value1&field2=value2&fbclid=IwAR0gw6sBY47CIVxty4Qw8brrUnTbpRrh-uaKaP4nXsT9NckRGKSCHeTWReo HTTP/1.1");
 
 	bzero(SERVER_ROOT, PATH_MAX);
+
 	char *SR = "/root/CodeZ/C/netmaster/server_root\0";
 	strncpy(SERVER_ROOT, SR, 35);
+	SERVER_ROOT_LEN = strlen(SERVER_ROOT);
+	
 	char header[MAX_HEADER];
 
 	bzero(header, MAX_HEADER);
@@ -88,12 +101,13 @@ int GetParser(const char * line){
 
 	*start_of_path++;
 	bzero(path, path_len);
-    strncpy(path, start_of_path,  path_len - 1);
+	path_len--;
+    strncpy(path, start_of_path,  path_len);
 
 	if (path_len + strlen(SERVER_ROOT) >= PATH_MAX - 1)
 		return URL_TOO_LONG;
 
-	char *file = calloc(strlen(SERVER_ROOT) + strlen(path), 1);
+	char *file = calloc(SERVER_ROOT_LEN + path_len, 1);
 	PathChecker(path, file);
     /*Print */
     printf("%s %ld\n", query, sizeof(query));
@@ -107,9 +121,9 @@ int GetParser(const char * line){
 
 int PathChecker(const char * path, char * req_file){
 
-	printf("11\n");
-	
-	sprintf(req_file, "%s/%s", SERVER_ROOT, path);
+	memcpy(req_file, SERVER_ROOT, SERVER_ROOT_LEN);
+	memcpy(req_file, "/", 1);
+	memcpy(req_file, path, strlen(path));
 
 	if(access(req_file, F_OK) == -1) return Not_Found;
 
@@ -128,16 +142,12 @@ int PathChecker(const char * path, char * req_file){
 				free(req_file);
 				return Not_Found;
 			}
-			// printf("%s\n", req_file);
-			// return Forbidden; break;
 		case S_IFIFO:  return Forbidden;
 		case S_IFLNK:  return Forbidden;
 		case S_IFREG:  break;
 		case S_IFSOCK: return Forbidden;
     	default:       return Forbidden;
     }
-
-	// printf("%s \n", req_file);
 	return 0;
 
 }
