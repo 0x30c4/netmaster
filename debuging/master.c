@@ -93,7 +93,7 @@ int GetParser(const char * line){
 	if (path_len + strlen(SERVER_ROOT) >= PATH_MAX - 1)
 		return URL_TOO_LONG;
 
-	char *file = NULL;
+	char *file = calloc(strlen(SERVER_ROOT) + strlen(path), 1);
 	PathChecker(path, file);
     /*Print */
     printf("%s %ld\n", query, sizeof(query));
@@ -108,7 +108,6 @@ int GetParser(const char * line){
 int PathChecker(const char * path, char * req_file){
 
 	printf("11\n");
-	req_file = calloc(strlen(SERVER_ROOT) + strlen(path), 1);
 	
 	sprintf(req_file, "%s/%s", SERVER_ROOT, path);
 
