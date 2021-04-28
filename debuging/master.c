@@ -26,7 +26,8 @@ int main(int argc, char const *argv[]){
 
 	bzero(SERVER_ROOT, PATH_MAX);
 
-	char *SR = "/root/CodeZ/C/netmaster/server_root\0";
+	// char *SR = "/root/CodeZ/C/netmaster/server_root\0";
+	char *SR = "/root/netmaster/server_root\0";
 	strncpy(SERVER_ROOT, SR, 35);
 	SERVER_ROOT_LEN = strlen(SERVER_ROOT);
 	
@@ -89,9 +90,10 @@ int GetParser(const char * line){
     strncpy(query, start_of_query, query_len);
 
     /* Null terminators (because strncpy does not provide them) */
-    path[sizeof(path)] = 0;
-    query[sizeof(query)] = 0;
+    path[path_len] = 0;
+    query[query_len] = 0;
 
+	// printf("%ld,%ld|%ld,%ld\n", sizeof(path), path_len, sizeof(query), query_len);
 	// error checking 
 	if (!startsWith(path, "/"))
 		return MALFORMED_HADER;
@@ -99,20 +101,19 @@ int GetParser(const char * line){
 	if (strstr(path, "/./") != NULL || strstr(path, "/../") != NULL)
 		return PATH_ATTACK;
 
-	*start_of_path++;
-	bzero(path, path_len);
-	path_len--;
-    strncpy(path, start_of_path,  path_len);
-
-	if (path_len + strlen(SERVER_ROOT) >= PATH_MAX - 1)
+	if (path_len + SERVER_ROOT_LEN >= PATH_MAX - 1)
 		return URL_TOO_LONG;
 
-	char *file = calloc(SERVER_ROOT_LEN + path_len, 1);
-	PathChecker(path, file);
-    /*Print */
-    printf("%s %ld\n", query, sizeof(query));
-    printf("%s %ld\n", path, sizeof(path));
-    printf("%s %ld\n", file, sizeof(file));
+	char *file = calloc(SERVER_ROOT_LEN + path_len + 1, 1);
+
+	
+	int rec = PathChecker(path, file);
+	if (rec != 0) return rec;
+    
+	/*Print */
+    printf("Query -> %s %ld\n", query, sizeof(query));
+    printf("Path -> %s %ld\n", path, sizeof(path));
+    printf("File -> %s %ld\n", file, sizeof(file));
 
 	free(file);
 
@@ -121,27 +122,37 @@ int GetParser(const char * line){
 
 int PathChecker(const char * path, char * req_file){
 
-	memcpy(req_file, SERVER_ROOT, SERVER_ROOT_LEN);
-	memcpy(req_file, "/", 1);
-	memcpy(req_file, path, strlen(path));
+	strncat(req_file, SERVER_ROOT, SERVER_ROOT_LEN);
+	strcat(req_file, path);
+	// strncat(req_file, path, strlen(path));
 
-	if(access(req_file, F_OK) == -1) return Not_Found;
+
+	// if(access(req_file, F_OK) == -1) return Not_Found;
 
 	struct stat sb;
 
-	stat(req_file, &sb);
+	// printf("1 - > %s \n", req_file);
 
-	// printf("stat: %d\n", stat(req_file, &sb));
-	// printf("\t%d\n", sb.st_mode & S_IFMT == S_IFREG);
+	if (stat(req_file, &sb) == -1)
+		return Not_Found;
+
+	// printf("%d %d\n", sb.st_mode & S_IFMT, S_IFDIR);
+
 	switch (sb.st_mode & S_IFMT) {
 		case S_IFBLK:  return Forbidden;
 		case S_IFCHR:  return Forbidden;
 		case S_IFDIR:
-			sprintf(req_file, "%s/%s/%s", SERVER_ROOT, path, INDEX_FILE);
-			if(access(req_file, F_OK) == -1) {
+			strcat(req_file, "/");
+			strcat(req_file, INDEX_FILE);
+		
+			if(stat(req_file, &sb) == -1) {
 				free(req_file);
 				return Not_Found;
+			}else{
+				if ((sb.st_mode & S_IFMT) != S_IFREG)
+					return Forbidden;
 			}
+			break;
 		case S_IFIFO:  return Forbidden;
 		case S_IFLNK:  return Forbidden;
 		case S_IFREG:  break;
