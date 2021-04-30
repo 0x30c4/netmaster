@@ -4,7 +4,7 @@ CFLAGS = -Wall -c -g
 all: output rmdotos
 
 run: 
-	./tcps 
+	./tcps
 
 output: master.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o
 	$(CC) -pthread master.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o -o tcps
