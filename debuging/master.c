@@ -93,7 +93,6 @@ int GetParser(const char * line){
     path[path_len] = 0;
     query[query_len] = 0;
 
-	// printf("%ld,%ld|%ld,%ld\n", sizeof(path), path_len, sizeof(query), query_len);
 	// error checking 
 	if (!startsWith(path, "/"))
 		return MALFORMED_HADER;
