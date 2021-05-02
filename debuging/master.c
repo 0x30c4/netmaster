@@ -63,12 +63,12 @@ int main(int argc, char const *argv[]){
 }
 
 int GetParser(const char * line){
-	/* header type */
+	// header type 
 	// todo change str to var for opt.
 	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
 	if (!endsWith(line, "HTTP/1.1\r\n") && !endsWith(line, "HTTP/2\r\n")) return MALFORMED_HADER;
     
-	/* Find out where everything is */
+	// Find out where everything is 
 
     const char *start_of_path = strchr(line, ' ') + 1;
     const char *start_of_query = strchr(start_of_path, '?');
@@ -81,15 +81,15 @@ int GetParser(const char * line){
 	if (path_len >= MAX_URL - 1)
 		return URL_TOO_LONG;
 
-    /* Get the right amount of memory */
+    // Get the right amount of memory 
     char path[path_len];
     char query[query_len];
  
-    /* Copy the strings into our memory */
+    // Copy the strings into our memory
     strncpy(path, start_of_path,  path_len);
     strncpy(query, start_of_query, query_len);
 
-    /* Null terminators (because strncpy does not provide them) */
+    // Null terminators (because strncpy does not provide them) 
     path[path_len] = 0;
     query[query_len] = 0;
 
