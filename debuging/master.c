@@ -11,6 +11,7 @@ int strpcmp(const char * s1, const char * s2, size_t cmpto);
 // check if SERVER_ROOT is valid dir in the context of this program
 char SERVER_ROOT[PATH_MAX];
 int SERVER_ROOT_LEN = 0;
+int UID = 0;
 
 // struct SERVER_ROOT_DATA_{
 // 	char *SERVER_ROOT;
@@ -24,10 +25,12 @@ int SERVER_ROOT_LEN = 0;
 int main(int argc, char const *argv[]){
 	// parse("GET /path/script.cgi?field1=value1&field2=value2&fbclid=IwAR0gw6sBY47CIVxty4Qw8brrUnTbpRrh-uaKaP4nXsT9NckRGKSCHeTWReo HTTP/1.1");
 
+	UID = getuid();
+
 	bzero(SERVER_ROOT, PATH_MAX);
 
-	// char *SR = "/root/CodeZ/C/netmaster/server_root\0";
-	char *SR = "/root/netmaster/server_root\0";
+	char *SR = "/root/CodeZ/C/netmaster/server_root\0";
+	// char *SR = "/root/netmaster/server_root\0";
 	strncpy(SERVER_ROOT, SR, 35);
 	SERVER_ROOT_LEN = strlen(SERVER_ROOT);
 	
@@ -36,7 +39,6 @@ int main(int argc, char const *argv[]){
 	bzero(header, MAX_HEADER);
 
 	int rec = 0, header_no = 0;
-
 
 	// printf("%s", strstr("/rnd/../ad../asd..asd/..../..././.../..", "/../") != NULL);
 
@@ -108,8 +110,7 @@ int GetParser(const char * line){
 	
 	int rec = PathChecker(path, file);
 	if (rec != 0) return rec;
-    
-	/*Print */
+
     printf("Query -> %s %ld\n", query, sizeof(query));
     printf("Path -> %s %ld\n", path, sizeof(path));
     printf("File -> %s %ld\n", file, sizeof(file));
@@ -135,7 +136,9 @@ int PathChecker(const char * path, char * req_file){
 	if (stat(req_file, &sb) == -1)
 		return Not_Found;
 
-	// printf("%d %d\n", sb.st_mode & S_IFMT, S_IFDIR);
+	// printf("%u", sb.st_uid);
+    // checking if the file is owned by the user who started the server.
+    if (UID != sb.st_uid) return Forbidden;
 
 	switch (sb.st_mode & S_IFMT) {
 		case S_IFBLK:  return Forbidden;
