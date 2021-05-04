@@ -9,9 +9,6 @@ run:
 output: master.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o
 	$(CC) -pthread master.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o -o tcps
 
-#output: worker.o server.o parser.o err.o handler.o sender.o argumentparser.o common.o 
-#	$(CC) -pthread worker.o server.o parser.o err.o handler.o sender.o common.o argumentparser.o -o tcps
-
 worker.o: worker.c
 	$(CC) $(CFLAGS) -Iinclude worker.c
 
