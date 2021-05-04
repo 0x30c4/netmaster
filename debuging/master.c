@@ -124,8 +124,6 @@ int PathChecker(const char * path, char * req_file){
 
 	strncat(req_file, SERVER_ROOT, SERVER_ROOT_LEN);
 	strcat(req_file, path);
-	// strncat(req_file, path, strlen(path));
-
 
 	// if(access(req_file, F_OK) == -1) return Not_Found;
 
