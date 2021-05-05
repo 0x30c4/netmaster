@@ -2,18 +2,12 @@
 #define _HANDLER_H_
 
 #include "common.h"
-#include "parser.h"
+#include "stringlib.h"
 #include "sender.h"
 #include "server.h"
 #include "err.h"
 
 // parsing, what kind of request is made by the slave
-void httpRequestHandler(int, int);
-void *handle_connection(void*);
-void *httpReqestParser(char *header, unsigned short *is_get_post_con_type_len, short *ret_code, short *,  bool *);
-int fileChecker(char fn[BUFSIZE / 4], unsigned long long int *, short *);
-int requestValidity(unsigned short *);
-int postDataHandler(char buf[(BUFSIZE / 128) + 5]);
 
 
 const char FILE_EXT[9][6];

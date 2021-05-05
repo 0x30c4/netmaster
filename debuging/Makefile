@@ -1,34 +1,25 @@
 CC = gcc
-CFLAGS = -Wall -c -g
+CFLAGS = -Wall -c -g -I /root/CodeZ/C/netmaster/include/
+
+INCLUDE = /root/CodeZ/C/netmaster/include
 
 all: output rmdotos
 
 run: 
 	./deb
 
-output: master.o server.o headerparser.o err.o handler.o sender.o common.o
-	$(CC) -pthread master.o server.o headerparser.o err.o handler.o sender.o common.o -o deb
+output: master.o stringlib.o headerparser.o
+	$(CC) -I $(INCLUDE) master.o headerparser.o stringlib.o -o deb 2>/dev/stdout
 
-master.o: master.c
-	$(CC) $(CFLAGS) master.c 
 
-server.o: ../include/server.c ../include/server.h
-	$(CC) $(CFLAGS) ../include/server.c
+stringlib.o: $(INCLUDE)/stringlib.c
+	$(CC) $(CFLAGS) $(INCLUDE)/stringlib.c 2>/dev/stdout
 
-err.o: ../include/err.c ../include/err.h
-	$(CC) $(CFLAGS) ../include/err.c
+headerparser.o: $(INCLUDE)/headerparser.c
+	$(CC) $(CFLAGS) $(INCLUDE)/headerparser.c 2>/dev/stdout
 
-headerparser.o: ../include/headerparser.c ../include/headerparser.h
-	$(CC) $(CFLAGS) ../include/headerparser.c
-
-handler.o: ../include/handler.c ../include/handler.h
-	$(CC) $(CFLAGS) ../include/handler.c
-
-sender.o: ../include/sender.c ../include/sender.h
-	$(CC) $(CFLAGS) ../include/sender.c
-
-common.o: ../include/common.c ../include/common.h
-	$(CC) $(CFLAGS) ../include/common.c
+master.o: master.c 
+	$(CC) $(CFLAGS) master.c 2>/dev/stdout
 
 clean:
 	rm -rf *.o tcps

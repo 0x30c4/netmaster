@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "server.h"
-#include "parser.h"
+#include "stringlib.h"
 #include "err.h"
 
 void * fileSender(int, const char *);

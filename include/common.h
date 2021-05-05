@@ -23,6 +23,10 @@
 #include <regex.h>
 #include <limits.h>
 
+#pragma pack(1)
+
+#define UID getuid()
+
 /*
 	Server header macros and flags.
 */
@@ -101,5 +105,6 @@ struct SERVER_CLIENT_DATA{
 // defining the end of header terminators .
 extern const char EOHL[3]; // End Of Header Line.
 extern const char EOH[5]; // End Of Header.
+
 
 #endif

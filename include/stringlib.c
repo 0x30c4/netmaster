@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "stringlib.h"
 
 // checks if a string ends with a special pattern of characters or sub-string
 int endsWith(const char *str, const char *subend){
@@ -38,12 +38,13 @@ int startsWith(const char *str, const char *substart){
 }
 
 // compares 2 string if they are the samess.
-int stringcmp(const char *str1, const char *str2){
-    if(strlen(str1) != strlen(str2)) return 0;
-    for (int i = 0; i < strlen(str1); ++i){
-        if (str1[i] != str2[i]) return 0;
-    }
-    return 1;
+int strpcmp(const char *s1, const char *s2, size_t cmpto){
+	
+    for (size_t i = 0; i < cmpto; i++){
+		if ((char)(*s1++) != (char)(*s2++))
+			return FALSE;
+	}
+	return TRUE;
 }
 
 // splits a string every time it finds a specific character. and returns a string array.  
@@ -214,29 +215,6 @@ ssize_t readCRLF(int fd, void *buffer){
     return totRead;
 }
 
-/* 
-    reads from a file descriptor until it gets a line feed.
-    and puts the readied buffer in buf.
-    returns the number of bytes it have read.  
-*/
-// int readLine(int fd, char buf[BUFSIZE]){
-//     bzero(buf, sizeof(buf));
-//     char c[1];
-//     size_t bytes_read;
-//     int msgsize = 0;
-//     bzero(&c, sizeof(c));
-//     while((bytes_read = read(fd, c, sizeof(c)))) {
-//         msgsize += bytes_read;
-//         strncat(buf, c, sizeof(c));
-//         if(msgsize > (BUFSIZE / 2) - 1 || c[0] == '\n' || bytes_read == 0) break;
-//     return msgsize;
-// }
-
-/* 
-    reads from a file pointer until it gets a line feed.
-    and puts the readied buffer in buf.
-    returns the number of bytes it have read.  
-*/
 int readLineFP(FILE * fp, char *buf){
     int size = 0;
     char c;
@@ -252,48 +230,4 @@ void slice_str(const char str[BUFSIZE], char * buffer, size_t start, size_t end)
         buffer[j++] = str[i];
     }
     buffer[j] = 0;
-}
-
-void stringcpy(char dest[BUFSIZE], char *str){
-    bzero(dest, BUFSIZE);
-    int str_len = strlen(str);
-    // if (str_len > BUFSIZE) return NULL;
-    for (int i = 0; i < str_len; ++i){
-        dest[i] = str[i];
-    }
-}
-
-int contentLength(char buf[BUFSIZE / 2]){
-    char num[10];
-    bzero(&num, 10);
-    slice_str(buf, num, 15, strlen(buf));
-    if (atoi(num) > BUFSIZE)
-        return -1;
-    return atoi(num);
-}
-
-char *strlow(char str[BUFSIZE]){
-    int i;
-
-    // Iterate loop till last character of string
-    for(i=0; str[i]!='\0'; i++)
-    {
-        if(str[i]>='A' && str[i]<='Z')
-        {
-            str[i] = str[i] + 32;
-        }
-    }
-
-    // printf("Lower case string: %s", str);
-
-    return str;
-}
-
-
-bool isInArray(char **arry, char com[BUFSIZE], int array_size){
-    for (int i = 0; i < array_size; ++i){
-        if (stringcmp(arry[i], com))
-            return TRUE;
-    }
-    return FALSE;
 }
