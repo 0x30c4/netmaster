@@ -1,12 +1,11 @@
 #include "../include/common.h"
 #include "../include/handler.h"
-#include "../include/parser.h"
+#include "../include/stringlib.h"
 
 // 414 (Request-URI Too Long)
 
 int PathChecker(const char * path, char * req_file);
 int GetParser(const char* line);
-int strpcmp(const char * s1, const char * s2, size_t cmpto);
 
 // check if SERVER_ROOT is valid dir in the context of this program
 char SERVER_ROOT[PATH_MAX];
@@ -161,15 +160,5 @@ int PathChecker(const char * path, char * req_file){
     }
 	return 0;
 
-}
-
-int strpcmp(const char * s1, const char * s2, size_t cmpto){
-
-	for (size_t i = 0; i < cmpto; i++){
-		if ((char)(*s1++) != (char)(*s2++))
-			return FALSE;
-	}
-	
-	return TRUE;
 }
 // 413 - The request has exceeded the max length allowed
