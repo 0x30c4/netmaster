@@ -1,2 +1,2 @@
 #!/bin/bash
-gcc -Wall -o deb master.c ../include/stringlib.c ;./deb < header.data
+gcc -Wall -o deb master.c ../include/stringlib.c ../include/headerparser.* ;./deb < header.data

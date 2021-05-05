@@ -1,30 +1,22 @@
 #include "../include/common.h"
 #include "../include/handler.h"
 #include "../include/stringlib.h"
+#include "../include/headerparser.h"
+
 
 // 414 (Request-URI Too Long)
 
-int PathChecker(const char * path, char * req_file);
-int GetParser(const char* line);
 
-// check if SERVER_ROOT is valid dir in the context of this program
 char SERVER_ROOT[PATH_MAX];
 int SERVER_ROOT_LEN = 0;
-int UID = 0;
 
-// struct SERVER_ROOT_DATA_{
-// 	char *SERVER_ROOT;
-// 	size_t SERVER_ROOT_LEN;
-// };
+int PathChecker(const char * path, char * req_file);
 
-// typedef struct SERVER_ROOT_DATA_ SERVER_ROOT_DATA;
-
-// SERVER_ROOT_DATA *SVR;
 
 int main(int argc, char const *argv[]){
 	// parse("GET /path/script.cgi?field1=value1&field2=value2&fbclid=IwAR0gw6sBY47CIVxty4Qw8brrUnTbpRrh-uaKaP4nXsT9NckRGKSCHeTWReo HTTP/1.1");
 
-	UID = getuid();
+	// UID = getuid();
 
 	bzero(SERVER_ROOT, PATH_MAX);
 
@@ -62,63 +54,6 @@ int main(int argc, char const *argv[]){
 	}
 	return 0;
 }
-
-int GetParser(const char * line){
-	// header type 
-	// todo change str to var for opt.
-	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
-	if (!endsWith(line, "HTTP/1.1\r\n") && !endsWith(line, "HTTP/2\r\n")) return MALFORMED_HADER;
-    
-	// Find out where everything is 
-
-    const char *start_of_path = strchr(line, ' ') + 1;
-    const char *start_of_query = strchr(start_of_path, '?');
-    const char *end_of_query = strchr(start_of_query, ' ');
-
-	int path_len, query_len;
-	path_len = start_of_query - start_of_path; 
-	query_len = end_of_query - start_of_query;
-	
-	if (path_len >= MAX_URL - 1)
-		return URL_TOO_LONG;
-
-    // Get the right amount of memory 
-    char path[path_len];
-    char query[query_len];
- 
-    // Copy the strings into our memory
-    strncpy(path, start_of_path,  path_len);
-    strncpy(query, start_of_query, query_len);
-
-    // Null terminators (because strncpy does not provide them) 
-    path[path_len] = 0;
-    query[query_len] = 0;
-
-	// error checking 
-	if (!startsWith(path, "/"))
-		return MALFORMED_HADER;
-	
-	if (strstr(path, "/./") != NULL || strstr(path, "/../") != NULL)
-		return PATH_ATTACK;
-
-	if (path_len + SERVER_ROOT_LEN >= PATH_MAX - 1)
-		return URL_TOO_LONG;
-
-	char *file = calloc(SERVER_ROOT_LEN + path_len + 1, 1);
-
-	
-	int rec = PathChecker(path, file);
-	if (rec != 0) return rec;
-
-    printf("Query -> %s %ld\n", query, sizeof(query));
-    printf("Path -> %s %ld\n", path, sizeof(path));
-    printf("File -> %s %ld\n", file, sizeof(file));
-
-	free(file);
-
-	return 0;
-}
-
 int PathChecker(const char * path, char * req_file){
 
 	strncat(req_file, SERVER_ROOT, SERVER_ROOT_LEN);
