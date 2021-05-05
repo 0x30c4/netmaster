@@ -1,3 +1,2 @@
 #!/bin/bash
-
 gcc -Wall -o deb master.c ../include/parser.c ;./deb < header.data
