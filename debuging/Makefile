@@ -24,5 +24,6 @@ master.o: master.c
 clean:
 	rm -rf *.o tcps
 
+
 rmdotos:
 	rm -fr *.o
