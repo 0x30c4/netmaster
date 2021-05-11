@@ -1,11 +1,11 @@
-#include "headerparser.h"
+#include "../include/headerparser.h"
 
 
 // check if SERVER_ROOT is valid dir in the context of this program
 
 // int UID = 0;
 
-int GetParser(const char * line){
+int GetParser(const char * line, SERVER_ROOT * SD){
 	// header type 
 	// todo change str to var for opt.
 	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
@@ -43,13 +43,13 @@ int GetParser(const char * line){
 	if (strstr(path, "/./") != NULL || strstr(path, "/../") != NULL)
 		return PATH_ATTACK;
 
-	if (path_len + SERVER_ROOT_LEN >= PATH_MAX - 1)
+	if (path_len + SD->len >= PATH_MAX - 1)
 		return URL_TOO_LONG;
 
-	char *file = calloc(SERVER_ROOT_LEN + path_len + 1, 1);
+	char *file = calloc(SD->len + path_len + 1, 1);
 
 	
-	int rec = PathChecker(path, file);
+	int rec = PathChecker(path, file, SD);
 	if (rec != 0) return rec;
 
     printf("Query -> %s %ld\n", query, sizeof(query));
@@ -62,9 +62,9 @@ int GetParser(const char * line){
 }
 
 
-int PathChecker(const char * path, char * req_file){
+int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 
-	strncat(req_file, SERVER_ROOT, SERVER_ROOT_LEN);
+	strncat(req_file, SD->path, SD->len);
 	strcat(req_file, path);
 
 	// if(access(req_file, F_OK) == -1) return Not_Found;

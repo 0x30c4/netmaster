@@ -6,7 +6,7 @@ INCLUDE = /root/CodeZ/C/netmaster/include
 all: output rmdotos
 
 run: 
-	./deb
+	./deb < header.data
 
 output: master.o stringlib.o headerparser.o
 	$(CC) -I $(INCLUDE) master.o headerparser.o stringlib.o -o deb 2>/dev/stdout

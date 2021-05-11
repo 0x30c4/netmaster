@@ -1,4 +1,4 @@
-#include "stringlib.h"
+#include "../include/stringlib.h"
 
 // checks if a string ends with a special pattern of characters or sub-string
 int endsWith(const char *str, const char *subend){

@@ -102,6 +102,12 @@ struct SERVER_CLIENT_DATA{
 	char  password[BUFSIZE / 128];
 };
 
+typedef struct _SERVER_ROOT {
+	char path[PATH_MAX];
+	size_t len;
+	unsigned int uid;
+} SERVER_ROOT;
+
 // defining the end of header terminators .
 extern const char EOHL[3]; // End Of Header Line.
 extern const char EOH[5]; // End Of Header.

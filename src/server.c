@@ -1,4 +1,4 @@
-#include "server.h"
+#include "../include/server.h"
 
 // QWERTYUIKSDFGHJK< VFTYUIKMNBVFYUKL<MNBVC
 // UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=

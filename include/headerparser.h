@@ -5,10 +5,7 @@
 #include <stringlib.h>
 #include <err.h>
 
-int GetParser(const char* );
-int PathChecker(const char * path, char * req_file);
-
-extern char SERVER_ROOT[PATH_MAX];
-extern int SERVER_ROOT_LEN = 0;
+int GetParser(const char*, SERVER_ROOT *);
+int PathChecker(const char * path, char * req_file, SERVER_ROOT *);
 
 #endif
