@@ -9,8 +9,6 @@ EXE = netmaster
 
 DEBUG = debuging
 
-# all: master
-
 run:
 	./netmaster
 
