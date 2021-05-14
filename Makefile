@@ -1,13 +1,13 @@
-CC = gcc
-CFLAGS = -Wall -g -c 
+CC=gcc
+CFLAGS=-Wall -g -c 
 
-INCLUDE = include
-SRC = src
-BIN = bin
-OBJ = obj
-EXE = netmaster
+INCLUDE=include
+SRC=src
+BIN=bin
+OBJ=obj
+EXE=netmaster
 
-DEBUG = debuging
+DEBUG=debuging
 
 run:
 	./netmaster
