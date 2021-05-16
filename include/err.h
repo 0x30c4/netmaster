@@ -42,6 +42,9 @@
 #define FAIL_IF(EXP) ({if (EXP) {exit(EXIT_FAILURE);}})
 #define FAIL_IF_MSG(EXP, MSG) ({if (EXP) {fprintf(stderr, MSG "\n");exit(EXIT_FAILURE);}})
 
+#define IF_FAIL_RET(EXP, REC) ({if (EXP) {return REC;}})
+#define IF_FAIL_RET_NOT(EXP, REC) ({if (!EXP) {return REC;}})
+
 extern const char STATUS_CODE[7][26];
 
 int check(int, const char *);

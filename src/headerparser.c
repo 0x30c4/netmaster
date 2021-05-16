@@ -35,20 +35,22 @@ int GetParser(const char * line, SERVER_ROOT * SD){
     query[query_len] = 0;
 
 	// error checking 
-	if (!startsWith(path, "/"))
-		return MALFORMED_HADER;
 	
-	if (strstr(path, "/./") != NULL || strstr(path, "/../") != NULL)
-		return PATH_ATTACK;
+	IF_FAIL_RET_NOT (startsWith(path, "/"), MALFORMED_HADER);
+	
+	IF_FAIL_RET ((strstr(path, "/./") != NULL) || (strstr(path, "/../") != NULL), PATH_ATTACK);
 
-	if (path_len + SD->len >= PATH_MAX - 1)
-		return URL_TOO_LONG;
+	IF_FAIL_RET (path_len + SD->len >= PATH_MAX - 1, URL_TOO_LONG);
+	
+	
 
 	char *file = calloc(SD->len + path_len + 1, 1);
 
-	
 	int rec = PathChecker(path, file, SD);
-	if (rec != 0) return rec;
+	if (rec != 0){
+		free(file);
+		return rec;	
+	} 
 
     printf("Query -> %s %ld\n", query, sizeof(query));
     printf("Path -> %s %ld\n", path, sizeof(path));
@@ -75,12 +77,10 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 		fprintf(stderr, "%s\n", strerror(errno));
 		return errno;
 	}
+	
 
-	if (S_ISLNK(fileStat.st_mode)){
-		return Forbidden;
-		// fprintf(stderr, "%s\n", strerror(errno));
-		// return errno;
-	}
+	IF_FAIL_RET (S_ISLNK(fileStat.st_mode), Forbidden);
+
 	if ((S_ISDIR(fileStat.st_mode))){
 		strcat(req_file, "/");
 		strcat(req_file, INDEX_FILE);
@@ -89,56 +89,10 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 			free(req_file);
 			return errno;
 		}else{
-			if ((fileStat.st_mode & S_IFMT) != S_IFREG)
-				return Forbidden;
+			IF_FAIL_RET (((fileStat.st_mode & S_IFMT) != S_IFREG), Forbidden);
 		}
 	}
-	if ((fileStat.st_mode & S_IRUSR) && (fileStat.st_mode & S_IRGRP) && (fileStat.st_mode & S_IROTH))
-		return 0;
-	else
-		return Forbidden;
-	// printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
-    // printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
-    // printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-
-    // printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-    // printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-    // printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-
-    // printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-    // printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-    // printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-    // printf("\n\n");
-
-    // printf("The file %s a symbolic link\n", (S_ISLNK(fileStat.st_mode)) ? "is" : "is not");
-
-	// printf("file uid -> %d\n", sb.st_uid);
-	// printf("file gid -> %d\n", sb.st_gid);
-
-    // // checking if the file is owned by the user who started the server.
-    // if (UID != sb.st_uid) return Forbidden;
-
-	// switch (sb.st_mode & S_IFMT) {
-	// 	case S_IFBLK:  return Forbidden;
-	// 	case S_IFCHR:  return Forbidden;
-	// 	case S_IFDIR:
-	// 		strcat(req_file, "/");
-	// 		strcat(req_file, INDEX_FILE);
-		
-	// 		if(stat(req_file, &sb) == -1) {
-	// 			free(req_file);
-	// 			return Not_Found;
-	// 		}else{
-	// 			if ((sb.st_mode & S_IFMT) != S_IFREG)
-	// 				return Forbidden;
-	// 		}
-	// 		break;
-	// 	case S_IFIFO:  return Forbidden;
-	// 	case S_IFLNK:  return Forbidden;
-	// 	case S_IFREG:  break;
-	// 	case S_IFSOCK: return Forbidden;
-    // 	default:       return Forbidden;
-    // }
+	IF_FAIL_RET_NOT ((fileStat.st_mode & S_IRUSR) && (fileStat.st_mode & S_IRGRP) && (fileStat.st_mode & S_IROTH), Forbidden);
 	return 0;
 }
 // 413 - The request has exceeded the max length allowed
