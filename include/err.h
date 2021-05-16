@@ -35,6 +35,13 @@
 // #define Not_Acceptable			406 // not send this to the client.
 // #define Internal_Server_Error   500 // server error
 
+#define CHECK(X) ({int __val = (X);(__val == -1 ? \
+                    ({ fprintf(stderr, "ERROR (" __FILE__ ": %d ) -- %s \n", __LINE__, strerror(errno));\
+                    exit(-1);-1;}):__val);})
+
+#define FAIL_IF(EXP) ({if (EXP) {exit(EXIT_FAILURE);}})
+#define FAIL_IF_MSG(EXP) ({if (EXP) {fprintf(stderr, MSG "\n");exit(EXIT_FAILURE);}})
+
 extern const char STATUS_CODE[7][26];
 
 int check(int, const char *);

@@ -10,7 +10,7 @@ EXE=netmaster
 DEBUG=debuging
 
 run:
-	./netmaster
+	./$(BIN)/$(EXE)
 
 %.o: $(SRC)/%.c 
 	$(CC) $(CFLAGS) $^ -o $(OBJ)/$@
