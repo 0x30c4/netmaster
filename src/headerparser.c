@@ -59,36 +59,56 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 	return 0;
 }
 
+/*
+	first check if a directory or file. if file then check permission
+	if directory then check if permission and try to find index.html
+*/
+
 int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 
 	strncat(req_file, SD->path, SD->len);
 	strcat(req_file, path);
 
-	// if(access(req_file, F_OK) == -1) return Not_Found;
-
 	struct stat fileStat;
-
-	// printf("1 - > %s \n", req_file);
 
 	if (stat(req_file, &fileStat) == -1){
 		fprintf(stderr, "%s\n", strerror(errno));
-		// return errno;
+		return errno;
 	}
 
-    printf("File Permissions: \t");
-    printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
-    
+	if (S_ISLNK(fileStat.st_mode)){
+		return Forbidden;
+		// fprintf(stderr, "%s\n", strerror(errno));
+		// return errno;
+	}
+	if ((S_ISDIR(fileStat.st_mode))){
+		strcat(req_file, "/");
+		strcat(req_file, INDEX_FILE);
+		
+		if(stat(req_file, &fileStat) == -1) {
+			free(req_file);
+			return errno;
+		}else{
+			if ((fileStat.st_mode & S_IFMT) != S_IFREG)
+				return Forbidden;
+		}
+	}
+	if ((fileStat.st_mode & S_IRUSR) && (fileStat.st_mode & S_IRGRP) && (fileStat.st_mode & S_IROTH))
+		return 0;
+	else
+		return Forbidden;
+	// printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+    // printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+    // printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
 
-	printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
-    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
-    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-    printf("\n\n");
+    // printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+    // printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+    // printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+
+    // printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+    // printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+    // printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+    // printf("\n\n");
 
     // printf("The file %s a symbolic link\n", (S_ISLNK(fileStat.st_mode)) ? "is" : "is not");
 

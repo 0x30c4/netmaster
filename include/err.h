@@ -7,12 +7,12 @@
 #define SOCKETERROR (-1)
 
 // file permission related errors.
-#define ERRFILENOTEXIST (-2) // server.conf file syntax error.
-#define ERRNOTREGFILE (-3) // if the requested file is not regular file
-#define ERRISDIR (-4) // if the requested file is a directory 
-#define ERRFILENOT (-5) // if file dose not exist
-#define ERRFILENOTREAD (-6) // if file is not readable
-#define ERRFILENOTOWNED (-6) // if file is not owned by the user who started the server.
+#define ERRFILENOTEXIST -2 // server.conf file syntax error.
+#define ERRNOTREGFILE -3 // if the requested file is not regular file
+#define ERRISDIR -4 // if the requested file is a directory 
+#define ERRFILENOT -5 // if file dose not exist
+#define ERRFILENOTREAD -6 // if file is not readable
+#define ERRFILENOTOWNED -6 // if file is not owned by the user who started the server.
 
 // http status codes.
 #define OK                    	0 // every thing is ok
@@ -40,7 +40,7 @@
                     exit(-1);-1;}):__val);})
 
 #define FAIL_IF(EXP) ({if (EXP) {exit(EXIT_FAILURE);}})
-#define FAIL_IF_MSG(EXP) ({if (EXP) {fprintf(stderr, MSG "\n");exit(EXIT_FAILURE);}})
+#define FAIL_IF_MSG(EXP, MSG) ({if (EXP) {fprintf(stderr, MSG "\n");exit(EXIT_FAILURE);}})
 
 extern const char STATUS_CODE[7][26];
 
