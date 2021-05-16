@@ -19,8 +19,7 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 	path_len = start_of_query - start_of_path; 
 	query_len = end_of_query - start_of_query;
 	
-	if (path_len >= MAX_URL - 1)
-		return URL_TOO_LONG;
+	IF_FAIL_RET (path_len >= MAX_URL - 1, URL_TOO_LONG);
 
     // Get the right amount of memory 
     char path[path_len];
