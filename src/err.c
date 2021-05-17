@@ -18,16 +18,6 @@ char STATUS_MSG_Not_Acceptable[28] = "Request is not acceptable:/\0";
 char STATUS_MSG_Request_URI_Too_long[23] = "Request-URI Too Long:/\0";
 char STATUS_MSG_Internal_Server_Error[24] = "Internal Server Error:/\0";
 
-#define OK                    	0 // 200  every thing is ok
-#define Bad_Request 			1 // 400  bad request/malformed request 
-#define Unauthorized   			2 // 401  not authorized to get the content.
-#define Forbidden				3 // 403  file is not owned by server starting user.
-#define Not_Found 				4 // 404  not exist
-#define Not_Acceptable			5 // 406  not send this to the client.
-#define Request_URI_Too_long    6 // 414  Request-URI Too Long
-#define Internal_Server_Error
-
-
 char *HeaderErrNo(int err){
     switch (err){
     case OK:

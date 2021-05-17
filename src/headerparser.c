@@ -1,20 +1,11 @@
 #include "../include/headerparser.h"
 
-
-// check if SERVER_ROOT is valid dir in the context of this program
-
-// int HeaderParser(int fd){
-
-// }
-
 int GetParser(const char * line, SERVER_ROOT * SD){
-	// header type 
-	// todo change str to var for opt.
-	if (!strpcmp(line, "GET", 3)) return CAN_NOT_HANDEL_THIS_REQ;
-	if (!endsWith(line, "HTTP/1.1\r\n") && !endsWith(line, "HTTP/2\r\n")) return MALFORMED_HADER;
+	// check if the header type is get and then check if the header is valide
+	IF_FAIL_RET ((!strpcmp(line, "GET", 3)), CAN_NOT_HANDEL_THIS_REQ);
+	IF_FAIL_RET ((!endsWith(line, "HTTP/1.1\r\n") && !endsWith(line, "HTTP/2\r\n")), MALFORMED_HADER);
     
 	// Find out where everything is 
-
     const char *start_of_path = strchr(line, ' ') + 1;
     const char *start_of_query = strchr(start_of_path, '?');
     const char *end_of_query = strchr(start_of_query, ' ');
@@ -37,20 +28,18 @@ int GetParser(const char * line, SERVER_ROOT * SD){
     path[path_len] = 0;
     query[query_len] = 0;
 
-	// error checking 
-	
-	IF_FAIL_RET_NOT (startsWith(path, "/"), MALFORMED_HADER);
+	// error checking
+	IF_FAIL_RET (!startsWith(path, "/"), MALFORMED_HADER);
 	
 	IF_FAIL_RET ((strstr(path, "/./") != NULL) || (strstr(path, "/../") != NULL), PATH_ATTACK);
 
 	IF_FAIL_RET (path_len + SD->len >= PATH_MAX - 1, URL_TOO_LONG);
-	
-	
 
 	char *file = calloc(SD->len + path_len + 1, 1);
 
 	int rec = PathChecker(path, file, SD);
-	if (rec != 0){
+	// printf("REC -> %d\n", rec);
+	if (rec != OK){
 		free(file);
 		return rec;	
 	} 
@@ -81,10 +70,14 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 		return errno;
 	}
 	
+	// check if the file or directory is readable 
+	IF_FAIL_RET (!(fileStat.st_mode & S_IRUSR), Forbidden); 
 
-	IF_FAIL_RET (S_ISLNK(fileStat.st_mode), Forbidden);
+	// check if the file is a link 
+	IF_FAIL_RET (S_ISLNK(fileStat.st_mode), Forbidden); 
 
 	if ((S_ISDIR(fileStat.st_mode))){
+		
 		strcat(req_file, "/");
 		strcat(req_file, INDEX_FILE);
 		
@@ -95,7 +88,6 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 			IF_FAIL_RET (((fileStat.st_mode & S_IFMT) != S_IFREG), Forbidden);
 		}
 	}
-	IF_FAIL_RET_NOT ((fileStat.st_mode & S_IRUSR) && (fileStat.st_mode & S_IRGRP) && (fileStat.st_mode & S_IROTH), Forbidden);
 	return 0;
 }
 // 413 - The request has exceeded the max length allowed

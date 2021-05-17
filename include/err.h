@@ -26,8 +26,9 @@
 #define FAIL_IF(EXP) ({if (EXP) {exit(EXIT_FAILURE);}})
 #define FAIL_IF_MSG(EXP, MSG) ({if (EXP) {fprintf(stderr, MSG "\n");exit(EXIT_FAILURE);}})
 
+// #define IF_FAIL_RET(EXP, REC) ({printf("REC line:%d | rec:%d | exp: %d\n", __LINE__, REC, EXP);if (EXP) {return REC;}})
 #define IF_FAIL_RET(EXP, REC) ({if (EXP) {return REC;}})
-#define IF_FAIL_RET_NOT(EXP, REC) ({if (!EXP) {return REC;}})
+// #define IF_FAIL_RET_NOT(EXP, REC) ({printf("!REC line:%d | rec:%d | exp: %d\n", __LINE__, REC, EXP);if (!EXP) {return REC;}})
 
 int check(int, const char *);
 void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]);

@@ -14,8 +14,8 @@ int main(int argc, char const *argv[]){
 	SERVER_ROOT server_data;
 
 	server_data.uid = getuid();
-	printf("uid -> %d\n", server_data.uid);
-	printf("gid -> %d\n", getgid());
+	// printf("uid -> %d\n", server_data.uid);
+	// printf("gid -> %d\n", getgid());
 
 	char *SR = "/root/CodeZ/C/netmaster/server_root\0";
 	
