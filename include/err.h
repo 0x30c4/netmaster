@@ -12,9 +12,9 @@
 
 #define OK                    	0 // 200  every thing is ok
 #define Bad_Request 			1 // 400  bad request/malformed request 
-#define Unauthorized   			2 // 401  not authorized to get the content.
+#define Not_Found 				2 // 404  not exist
 #define Forbidden				3 // 403  file is not owned by server starting user.
-#define Not_Found 				4 // 404  not exist
+#define Unauthorized   			4 // 401  not authorized to get the content.
 #define Not_Acceptable			5 // 406  not send this to the client.
 #define Request_URI_Too_long    6 // 414  Request-URI Too Long
 #define Internal_Server_Error   7 // 500  server error

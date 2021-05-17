@@ -35,10 +35,11 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 
 	IF_FAIL_RET (path_len + SD->len >= PATH_MAX - 1, URL_TOO_LONG);
 
-	char *file = calloc(SD->len + path_len + 1, 1);
+	char *file = file = calloc(SD->len + path_len + 1, 1);	
+
+	printf("path ---> %s\n", path);
 
 	int rec = PathChecker(path, file, SD);
-	// printf("REC -> %d\n", rec);
 	if (rec != OK){
 		free(file);
 		return rec;	
@@ -46,11 +47,11 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 
     printf("Query -> %s %ld\n", query, sizeof(query));
     printf("Path -> %s %ld\n", path, sizeof(path));
-    printf("File -> %s %ld\n", file, sizeof(file));
+    printf("File -> %s %ld %ld \n", file, strlen(file), SD->len + path_len + 1);
 
 	free(file);
 
-	return 0;
+	return OK;
 }
 
 /*
@@ -60,13 +61,13 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 
 int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 
+	struct stat fileStat;
 	strncat(req_file, SD->path, SD->len);
 	strcat(req_file, path);
 
-	struct stat fileStat;
 
 	if (stat(req_file, &fileStat) == -1){
-		fprintf(stderr, "%s\n", strerror(errno));
+		fprintf(stderr, "%s | %d\n", strerror(errno), errno);
 		return errno;
 	}
 	
@@ -78,6 +79,10 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 
 	if ((S_ISDIR(fileStat.st_mode))){
 		
+		printf("new len -> %ld\n", strlen(INDEX_FILE) + strlen(req_file) + 1);
+		
+		req_file = realloc(req_file, strlen(INDEX_FILE) + strlen(req_file) + 1);
+
 		strcat(req_file, "/");
 		strcat(req_file, INDEX_FILE);
 		
@@ -88,6 +93,6 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 			IF_FAIL_RET (((fileStat.st_mode & S_IFMT) != S_IFREG), Forbidden);
 		}
 	}
-	return 0;
+	return OK;
 }
 // 413 - The request has exceeded the max length allowed

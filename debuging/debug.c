@@ -38,8 +38,8 @@ int main(int argc, char const *argv[]){
 		}else{
 			if (header_no == 0){
 				rec = GetParser(header, &server_data);
-				if (rec != 0){
-					printf("HEADER ERROR! %d\n", rec);
+				if (rec != OK){
+					printf("HEADER ERROR!| No: %d | %s | \n", header_no, HeaderErrNoStatusCode(rec));
 					break;
 				}
 				break;

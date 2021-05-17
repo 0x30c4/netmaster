@@ -67,8 +67,8 @@
 // Server constants.
 #define SERVERPORT     6969 // Port to listen on.
 #define SERVER_BACKLOG 100 // After this much connection the slave will be in waiting list
-#define INDEX_FILE     "index.html" // This file will be sent to every browser client
-#define FAVICON_ICO    "favicon.ico" // This file will be sent to every browser client
+#define INDEX_FILE     "index.html\0" // This file will be sent to every browser client
+#define FAVICON_ICO    "favicon.ico\0" // This file will be sent to every browser client
 
 /* 
 	Some macros for file handling. 
