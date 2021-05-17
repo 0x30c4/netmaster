@@ -3,6 +3,10 @@
 
 // check if SERVER_ROOT is valid dir in the context of this program
 
+// int HeaderParser(int fd){
+
+// }
+
 int GetParser(const char * line, SERVER_ROOT * SD){
 	// header type 
 	// todo change str to var for opt.

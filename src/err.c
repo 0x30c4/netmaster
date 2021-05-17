@@ -1,20 +1,31 @@
 #include "../include/err.h"
 
-const char STATUS_CODE[7][26] = {
+const char STATUS_CODE[8][26] = {
 					"200 OK\0", "400 Bad Request\0", "401 Unauthorized\0", "403 Forbidden\0",
-					"404 Not Found\0", "406 Not Acceptable\0", "500 Internal Server Error\0"
+					"404 Not Found\0", "406 Not Acceptable\0", "414 Too Long URI\0"
+                    "500 Internal Server Error\0"
 					};
 
-const char ERROR_TYP_TXT[7][32] = {
-								   "Every thing is ok :-)",
+const char ERROR_TYP_TXT[8][32] = {
+								   "Every thing is ok :-)\0",
 								   "This request is a bad request!!\0", 
 								   "Unauthorized to access\0",
 								   "This resource is forbidden:(\0",
 								   "Can't locate the resource :/\0",
 								   "Request is not acceptable!#@!\0",
+                                   "Request-URI Too Long!\0",
 								   "Server error, [Internal]!!@#$!!\0"
 								   };
 
+// char *HeaderErrNo(int err){
+//     if (err > 7) return -1;
+//     return ERROR_TYP_TXT[err];
+// }
+
+// char *HeaderErrNoStatusCode(int err){
+//     if (err > 7) return -1;
+//     return STATUS_CODE[err];
+// }
 
 void print_usage(const char *PN){
     // "Specify document root <docroot> for built-in web server"
