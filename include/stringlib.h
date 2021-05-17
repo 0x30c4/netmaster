@@ -2,12 +2,7 @@
 #define _STRINGLIB_H_
 
 #include "common.h"
-
-#define URL_TOO_LONG -23
-#define HEADER_TOO_LONG -22
-#define MALFORMED_HADER -21
-#define CAN_NOT_HANDEL_THIS_REQ -20
-#define PATH_ATTACK -19
+#include "err.h"
 
 int endsWith(const char *, const char *);
 int startsWith(const char *, const char *);

@@ -193,12 +193,12 @@ ssize_t readCRLF(int fd, void *buffer){
                 totRead++;
                 *buf++ = ch;
             }else
-                return HEADER_TOO_LONG;
+                return Request_URI_Too_long;
 
             if (ch == '\n' && prev_cr)
                 break;
             else if ((ch == '\n' && !prev_cr) || (ch != '\n' && prev_cr))
-                return MALFORMED_HADER;
+                return Bad_Request;
 
             if (ch == '\r')
                 prev_cr = TRUE;

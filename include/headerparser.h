@@ -6,6 +6,6 @@
 #include "err.h"
 
 int GetParser(const char*, SERVER_ROOT *);
-int PathChecker(const char * path, char * req_file, SERVER_ROOT *);
-
+int PathChecker(const char *, char *, SERVER_ROOT *);
+int ParseHeader(const char *, int);
 #endif
