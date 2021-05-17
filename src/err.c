@@ -1,31 +1,94 @@
 #include "../include/err.h"
 
-const char STATUS_CODE[8][26] = {
-					"200 OK\0", "400 Bad Request\0", "401 Unauthorized\0", "403 Forbidden\0",
-					"404 Not Found\0", "406 Not Acceptable\0", "414 Too Long URI\0"
-                    "500 Internal Server Error\0"
-					};
+char STATUS_CODE_OK[7] = "200 OK\0";
+char STATUS_CODE_Bad_Request[16] = "400 Bad Request\0";
+char STATUS_CODE_Unauthorized[17] = "401 Unauthorized\0";
+char STATUS_CODE_Forbidden[14] = "403 Forbidden\0";
+char STATUS_CODE_Not_Found[14] = "404 Not Found\0";
+char STATUS_CODE_Not_Acceptable[19] = "406 Not Acceptable\0";
+char STATUS_CODE_Request_URI_Too_long[17] = "414 Too Long URI\0";
+char STATUS_CODE_Internal_Server_Error[26] = "500 Internal Server Error\0";
 
-const char ERROR_TYP_TXT[8][32] = {
-								   "Every thing is ok :-)\0",
-								   "This request is a bad request!!\0", 
-								   "Unauthorized to access\0",
-								   "This resource is forbidden:(\0",
-								   "Can't locate the resource :/\0",
-								   "Request is not acceptable!#@!\0",
-                                   "Request-URI Too Long!\0",
-								   "Server error, [Internal]!!@#$!!\0"
-								   };
+char STATUS_MSG_OK[22] = "Every thing is ok :-)\0";
+char STATUS_MSG_Bad_Request[14] = "Bad request!!\0";
+char STATUS_MSG_Unauthorized[24] = "Unauthorized to access.\0";
+char STATUS_MSG_Forbidden[29] = "This resource is forbidden:(\0";
+char STATUS_MSG_Not_Found[28] = "Can't locate the resource:/\0";
+char STATUS_MSG_Not_Acceptable[28] = "Request is not acceptable:/\0";
+char STATUS_MSG_Request_URI_Too_long[23] = "Request-URI Too Long:/\0";
+char STATUS_MSG_Internal_Server_Error[24] = "Internal Server Error:/\0";
 
-// char *HeaderErrNo(int err){
-//     if (err > 7) return -1;
-//     return ERROR_TYP_TXT[err];
-// }
+#define OK                    	0 // 200  every thing is ok
+#define Bad_Request 			1 // 400  bad request/malformed request 
+#define Unauthorized   			2 // 401  not authorized to get the content.
+#define Forbidden				3 // 403  file is not owned by server starting user.
+#define Not_Found 				4 // 404  not exist
+#define Not_Acceptable			5 // 406  not send this to the client.
+#define Request_URI_Too_long    6 // 414  Request-URI Too Long
+#define Internal_Server_Error
 
-// char *HeaderErrNoStatusCode(int err){
-//     if (err > 7) return -1;
-//     return STATUS_CODE[err];
-// }
+
+char *HeaderErrNo(int err){
+    switch (err){
+    case OK:
+        return STATUS_MSG_OK;
+
+    case Bad_Request:
+        return STATUS_MSG_Bad_Request;
+
+    case Unauthorized:
+        return STATUS_MSG_Unauthorized;
+
+    case Forbidden:
+        return STATUS_MSG_Forbidden;
+
+    case Not_Found:
+        return STATUS_MSG_Not_Found;
+
+    case Not_Acceptable:
+        return STATUS_MSG_Not_Found;
+
+    case Request_URI_Too_long:
+        return STATUS_MSG_Request_URI_Too_long;
+
+    case Internal_Server_Error:
+        return STATUS_MSG_Internal_Server_Error;
+
+    default:
+        return NULL;
+    }
+}
+
+char *HeaderErrNoStatusCode(int err){
+    switch (err){
+    case OK:
+        return STATUS_CODE_OK;
+
+    case Bad_Request:
+        return STATUS_CODE_Bad_Request;
+
+    case Unauthorized:
+        return STATUS_CODE_Unauthorized;
+
+    case Forbidden:
+        return STATUS_CODE_Forbidden;
+
+    case Not_Found:
+        return STATUS_CODE_Not_Found;
+
+    case Not_Acceptable:
+        return STATUS_CODE_Not_Acceptable;
+
+    case Request_URI_Too_long:
+        return STATUS_CODE_Request_URI_Too_long;
+
+    case Internal_Server_Error:
+        return STATUS_CODE_Internal_Server_Error;
+
+    default:
+        return NULL;
+    }
+}
 
 void print_usage(const char *PN){
     // "Specify document root <docroot> for built-in web server"

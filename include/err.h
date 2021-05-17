@@ -29,12 +29,10 @@
 #define IF_FAIL_RET(EXP, REC) ({if (EXP) {return REC;}})
 #define IF_FAIL_RET_NOT(EXP, REC) ({if (!EXP) {return REC;}})
 
-extern const char STATUS_CODE[7][26];
-
 int check(int, const char *);
 void *errorPageSender(int client_socket, int error_code, char file_name[BUFSIZE]);
 void print_usage(const char *PN);
 int port_parser(char *p);
-// char *HeaderErrNo(int err);
-// char *HeaderErrNoStatusCode(int err);
+char *HeaderErrNo(int err);
+char *HeaderErrNoStatusCode(int err);
 #endif
