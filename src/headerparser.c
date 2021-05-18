@@ -40,11 +40,11 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 
 	IF_FAIL_RET (path_len + SD->len >= PATH_MAX - 1, Request_URI_Too_long);
 
-	char *file = file = calloc(SD->len + path_len + 1, 1);	
+	char *file = calloc(SD->len + path_len + 1, 1);	
 
-	// printf("path ---> %s\n", path);
 
 	int rec = PathChecker(path, file, SD);
+	// printf("path ---> %s\n", path);
 	if (rec != OK){
 		free(file);
 		return rec;	
@@ -52,7 +52,7 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 
     // printf("Query -> %s %ld\n", query, sizeof(query));
     // printf("Path -> %s %ld\n", path, sizeof(path));
-    printf("File -> %s %ld %ld \n", file, sizeof(file), SD->len + path_len + 1);
+    printf("File -> %s %ld %ld \n", file, strlen(file), SD->len + path_len + 1);
 
 	free(file);
 
@@ -106,6 +106,8 @@ int ParseHeader(const char * header, int headerLen){
 	IF_FAIL_RET ((endsWith(header, EOHL) && headerLen == 2), OK);
 
 	IF_FAIL_RET (!endsWith(header, EOHL), Bad_Request);
+
+
 
 	return OK;
 }

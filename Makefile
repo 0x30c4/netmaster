@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -g -c 
+CFLAGS=-Wall -O2 -c 
 
 INCLUDE=include
 SRC=src
@@ -21,6 +21,11 @@ buildtest: clean debug.o common.o err.o handler.o headerparser.o sender.o string
 runtest: buildtest
 	echo -e "\n----------------------------------------------\n"
 	./$(BIN)/$(EXE) < $(DEBUG)/header.data
+
+runtest_nc: buildtest
+	echo -e "\n----------------------------------------------\n"
+	ncat -lvnp 6969 | ./$(BIN)/$(EXE) > /dev/stdout
+
 
 debug.o: $(DEBUG)/debug.c
 	$(CC) $(CFLAGS) -I include $(DEBUG)/debug.c -o $(OBJ)/debug.o

@@ -49,40 +49,40 @@ int strpcmp(const char *s1, const char *s2, size_t cmpto){
 
 // splits a string every time it finds a specific character. and returns a string array.  
 char **split(const char *str, const char *d, int *len){
-    char _str[BUFSIZE];
+    // char _str[BUFSIZE];
     char** result = 0;
-    char *rest = NULL;
-    char *token;
-    int count = 0;
-    bzero(&_str, BUFSIZE);
-    strncpy(_str, str, strlen(str));
+    // char *rest = NULL;
+    // char *token;
+    // int count = 0;
+    // bzero(&_str, BUFSIZE);
+    // strncpy(_str, str, strlen(str));
 
-    for (token = strtok_r(_str, d, &rest);
-        token != NULL;
-        token = strtok_r(NULL, d, &rest)){
-        // printf("%s\n", token);
-        count++;
-    }   
+    // for (token = strtok_r(_str, d, &rest);
+    //     token != NULL;
+    //     token = strtok_r(NULL, d, &rest)){
+    //     // printf("%s\n", token);
+    //     count++;
+    // }   
 
-    strncpy(_str, str, strlen(str));
-    result = malloc(sizeof(char*) * count + 1);
+    // strncpy(_str, str, strlen(str));
+    // result = malloc(sizeof(char*) * count + 1);
 
-    if (result){
-        size_t idx  = 0;
+    // if (result){
+    //     size_t idx  = 0;
 
-        // *(result + idx++) = "hello";
+    //     // *(result + idx++) = "hello";
 
-        for (token = strtok_r(_str, d, &rest);
-            token != NULL;
-            token = strtok_r(NULL, d, &rest)){
+    //     for (token = strtok_r(_str, d, &rest);
+    //         token != NULL;
+    //         token = strtok_r(NULL, d, &rest)){
             
-            if (idx < count){
-                *(result + idx++) = strdup(token);
-            }
-        }
+    //         if (idx < count){
+    //             *(result + idx++) = strdup(token);
+    //         }
+    //     }
 
-    }
-    *len = count;
+    // }
+    // *len = count;
     return result;
 }
 

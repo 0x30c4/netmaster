@@ -1,7 +1,7 @@
 test-serv.py
 .vscode 
-obj/*
+obj/*.o
 debuging/deb
 debuging/ss.py
 spam
-bin/*
+bin/netmaster

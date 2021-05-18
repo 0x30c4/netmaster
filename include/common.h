@@ -41,6 +41,7 @@
 #define MAX_HEADER 3072
 #define MAX_FILE_NAME 254
 #define MAX_DIR_NAME 254
+#define MAX_HEADERS 20
 
 // PARSED_FROM_HEADERS array index. 
 #define FILE_NAME 0
@@ -95,18 +96,17 @@
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
 
-struct SERVER_CLIENT_DATA{
-	short server;
-	short client;
-	char  special_dir[BUFSIZE / 4];
-	char  password[BUFSIZE / 128];
-};
-
-typedef struct _SERVER_ROOT {
+typedef struct SERVER_ROOT {
 	char path[PATH_MAX];
 	size_t len;
 	unsigned int uid;
 } SERVER_ROOT;
+
+typedef struct LookForHeader{
+	char header[MAX_HEADER];
+	size_t headerLen;
+} LookForHeader;
+
 
 // defining the end of header terminators .
 extern const char EOHL[3]; // End Of Header Line.
