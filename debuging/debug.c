@@ -29,7 +29,7 @@ int main(int argc, char const *argv[]){
 
 	LookForHeader *lfh = calloc(MAX_HEADERS, sizeof lfh);
 
-	printf("%ld\n", sizeof lfh);
+	printf("%ld\n", sizeof lfh->header);
 	
 	// strncpy(lfh[0].header, "User-Agent\0	", 11);
 	// lfh[0].headerLen = 10;
