@@ -25,7 +25,7 @@
 
 #pragma pack(1)
 
-#define UID getuid()
+/* #define UID getuid() */
 
 /*
 	Server header macros and flags.
@@ -44,9 +44,9 @@
 #define MAX_HEADERS 20
 
 // PARSED_FROM_HEADERS array index. 
-#define FILE_NAME 0
-#define COOKIE_D 1
-#define POST_D 2
+/* #define FILE_NAME 0 */
+/* #define COOKIE_D 1 */
+/* #define POST_D 2 */
 
 // Defining true and false. 
 #define TRUE 1 
@@ -87,11 +87,11 @@
 #define OCTET_STREAM   9
 
 // VALID_HEADERS_FROM_SLAVE array element index
-#define GET            0
-#define POST           1
-#define COOKIE         2
-#define CONTENTLENGTH  3
-#define CONTENTTYPE    4
+/* #define GET            0 */
+/* #define POST           1 */
+/* #define COOKIE         2 */
+/* #define CONTENTLENGTH  3 */
+/* #define CONTENTTYPE    4 */
 
 typedef struct sockaddr_in SA_IN;
 typedef struct sockaddr SA;
@@ -99,7 +99,7 @@ typedef struct sockaddr SA;
 typedef struct SERVER_ROOT {
 	char path[PATH_MAX];
 	size_t len;
-	unsigned int uid;
+	/* unsigned int uid; */
 } SERVER_ROOT;
 
 typedef struct LookForHeader{
