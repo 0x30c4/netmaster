@@ -27,15 +27,19 @@ int main(int argc, char const *argv[]){
 
 	strncpy(server_data.path, SR, server_data.len);
 
-	LookForHeader *lfh = calloc(MAX_HEADERS, sizeof lfh);
+	LookForHeader *lfh = calloc(MAX_HEADERS, sizeof lfh->header + sizeof lfh->headerLen);
 
-	printf("%ld\n", sizeof lfh->header);
+	// printf("%ld\n", sizeof lfh->header + sizeof lfh->headerLen);
+	printf("%ld\n", sizeof lfh);
+
 	
 	// strncpy(lfh[0].header, "User-Agent\0	", 11);
 	// lfh[0].headerLen = 10;
 
 	// struct_test(&lfh);
 	// SlaveHandler(0, &server_data, lfh);
+
+	free(lfh);
 
 	return 0;
 }
