@@ -5,10 +5,8 @@
 
 // char *PARSED_FROM_HEADERS[3] = {"\0", "\0", "\0"}; //file, Cookie, GET/POST data, content length.
 int SlaveHandler(int fd, SERVER_ROOT * server_data){
-    
-    // printf("%s | %ld\n", lfh[0]->header, lfh[0]->headerLen);
 	char *header = calloc(MAX_HEADER, 1);
-
+	char *path = calloc(MAX_URL - MAX_FILE_NAME, 1);
 	int headerLineLen = 0, retCode = 0;
 
 	for (size_t header_no = 0; header_no <= MAX_HEADERS; header_no++){
@@ -19,7 +17,10 @@ int SlaveHandler(int fd, SERVER_ROOT * server_data){
 			break;
 		}else{
 			if (header_no == 0){
-				retCode = GetParser(header, server_data);
+				retCode = GetParser(header, server_data, path);
+				sendResponse(1, server_data, path);
+				// PathChecker(path, header, server_data);
+				// printf("%s\n", header);
             }
 			/* else */
 			/* 	retCode = ParseHeader(header, headerLineLen); */
@@ -33,6 +34,7 @@ int SlaveHandler(int fd, SERVER_ROOT * server_data){
 		// bzero(header, MAX_HEADER);
 		header_no++;
 	}
-
+	free(header);
+	free(path);
     return OK;
 }

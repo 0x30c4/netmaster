@@ -41,7 +41,7 @@
 #define MAX_HEADER 3072
 #define MAX_FILE_NAME 254
 #define MAX_DIR_NAME 254
-#define MAX_HEADERS 20
+#define MAX_HEADERS 1
 
 // PARSED_FROM_HEADERS array index. 
 /* #define FILE_NAME 0 */

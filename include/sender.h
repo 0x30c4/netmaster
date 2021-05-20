@@ -6,6 +6,7 @@
 #include "stringlib.h"
 #include "err.h"
 
-void * fileSender(int, const char *);
-void headerSender(int , int, unsigned long long int, int);
+void sendResponse(int, SERVER_ROOT *, char *);
+void *fileSender(int, const char *);
+void headerSender(int , long int, int);
 #endif

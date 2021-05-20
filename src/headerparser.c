@@ -1,6 +1,6 @@
 #include "../include/headerparser.h"
 
-int GetParser(const char * line, SERVER_ROOT * SD){
+int GetParser(const char * line, SERVER_ROOT * SD, char * _path){
 	// check if the header type is get and then check if the header is valide
 	IF_FAIL_RET ((!strpcmp(line, "GET", 3)), Not_Acceptable);
 	IF_FAIL_RET ((!endsWith(line, "HTTP/1.1\r\n") && !endsWith(line, "HTTP/2\r\n")), Bad_Request);
@@ -38,23 +38,24 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 	
 	IF_FAIL_RET ((strstr(path, "/./") != NULL) || (strstr(path, "/../") != NULL), Not_Acceptable);
 
-	IF_FAIL_RET (path_len + SD->len >= PATH_MAX - 1, Request_URI_Too_long);
+	IF_FAIL_RET (path_len + SD->len >= MAX_URL - MAX_FILE_NAME - 1, Request_URI_Too_long);
 
-	char *file = calloc(SD->len + path_len + 1, 1);	
+	// char *file = calloc(SD->len + path_len + 1, 1);	
 
 
-	int rec = PathChecker(path, file, SD);
+	// int rec = PathChecker(path, file, SD);
 	// printf("path ---> %s\n", path);
-	if (rec != OK){
-		free(file);
-		return rec;	
-	}
+	// if (rec != OK){
+	// 	free(file);
+	// 	return rec;	
+	// }
 
+	memcpy(_path, path, path_len);
     // printf("Query -> %s %ld\n", query, sizeof(query));
     // printf("Path -> %s %ld\n", path, sizeof(path));
-    printf("File -> %s %ld %ld \n", file, strlen(file), SD->len + path_len + 1);
+    // printf("File -> %s %ld %ld \n", file, strlen(file), SD->len + path_len + 1);
 
-	free(file);
+	// free(file);
 
 	return OK;
 }
@@ -64,7 +65,7 @@ int GetParser(const char * line, SERVER_ROOT * SD){
 	if directory then check if permission and try to find index.html
 */
 
-int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
+int PathChecker(const char * path, char * req_file, long int *fsize, SERVER_ROOT * SD){
 
 	struct stat fileStat;
 	strncat(req_file, SD->path, SD->len);
@@ -98,8 +99,10 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 			IF_FAIL_RET (((fileStat.st_mode & S_IFMT) != S_IFREG), Forbidden);
 		}
 	}
+	*fsize = fileStat.st_size;
 	return OK;
 }
+
 // 413 - The request has exceeded the max length allowed
 /* int ParseHeader(const char * header, int headerLen){ */
 
