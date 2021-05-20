@@ -13,6 +13,5 @@ void headerSender(int client_socket, int flag, unsigned long long int size, int 
 }
 
 void *fileSender(int client_socket, const char *filename){
-
     return NULL;
 }

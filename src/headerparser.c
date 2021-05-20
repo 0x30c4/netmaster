@@ -101,13 +101,11 @@ int PathChecker(const char * path, char * req_file, SERVER_ROOT * SD){
 	return OK;
 }
 // 413 - The request has exceeded the max length allowed
-int ParseHeader(const char * header, int headerLen){
+/* int ParseHeader(const char * header, int headerLen){ */
 
-	IF_FAIL_RET ((endsWith(header, EOHL) && headerLen == 2), OK);
+/* 	IF_FAIL_RET ((endsWith(header, EOHL) && headerLen == 2), OK); */
 
-	IF_FAIL_RET (!endsWith(header, EOHL), Bad_Request);
+/* 	IF_FAIL_RET (!endsWith(header, EOHL), Bad_Request); */
 
-
-
-	return OK;
-}
+/* 	return OK; */
+/* } */
