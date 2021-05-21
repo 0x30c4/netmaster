@@ -1,9 +1,5 @@
 #include "../include/handler.h"
 
-// const char FILE_EXT[9][6] = {"html\0", "htm\0", "js\0", "css\0", "txt\0",
-//                             "png\0", "jpg\0", "jpge\0", "ico\0"};
-
-// char *PARSED_FROM_HEADERS[3] = {"\0", "\0", "\0"}; //file, Cookie, GET/POST data, content length.
 int SlaveHandler(int fd, SERVER_ROOT * server_data){
 	char *header = calloc(MAX_HEADER, 1);
 	char *path = calloc(MAX_URL - MAX_FILE_NAME, 1);

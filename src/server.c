@@ -1,8 +1,5 @@
 #include "../include/server.h"
 
-// QWERTYUIKSDFGHJK< VFTYUIKMNBVFYUKL<MNBVC
-// UVdFUlRZVUlLU0RGR0hKSzwgVkZUWVVJS01OQlZGWVVLTDxNTkJWQwo=
-
 int setup_sever(short port, int backlog){
 	// setting up the server.
 	int server_socket;

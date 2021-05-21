@@ -1,13 +1,13 @@
 #include "../include/err.h"
 
-char STATUS_CODE_OK[7] = "200 OK\0";
-char STATUS_CODE_Bad_Request[16] = "400 Bad Request\0";
-char STATUS_CODE_Unauthorized[17] = "401 Unauthorized\0";
-char STATUS_CODE_Forbidden[14] = "403 Forbidden\0";
-char STATUS_CODE_Not_Found[14] = "404 Not Found\0";
-char STATUS_CODE_Not_Acceptable[19] = "406 Not Acceptable\0";
-char STATUS_CODE_Request_URI_Too_long[17] = "414 Too Long URI\0";
-char STATUS_CODE_Internal_Server_Error[26] = "500 Internal Server Error\0";
+char STATUS_CODE_OK[OK_Len] = "200 OK\0";
+char STATUS_CODE_Bad_Request[Bad_Request_Len] = "400 Bad Request\0";
+char STATUS_CODE_Unauthorized[Unauthorized_Len] = "401 Unauthorized\0";
+char STATUS_CODE_Forbidden[Forbidden_Len] = "403 Forbidden\0";
+char STATUS_CODE_Not_Found[Not_Found_Len] = "404 Not Found\0";
+char STATUS_CODE_Not_Acceptable[Not_Acceptable_Len] = "406 Not Acceptable\0";
+char STATUS_CODE_Request_URI_Too_long[Request_URI_Too_long_Len] = "414 Too Long URI\0";
+char STATUS_CODE_Internal_Server_Error[Internal_Server_Error_Len] = "500 Internal Server Error\0";
 
 char STATUS_MSG_OK[22] = "Every thing is ok :-)\0";
 char STATUS_MSG_Bad_Request[14] = "Bad request!!\0";
