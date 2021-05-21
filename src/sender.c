@@ -2,16 +2,24 @@
 
 // Server respones headers.
 
-const char RESPONSE_HTTP[7] = "HTTP/2 ";
+const char RESPONSE_HTTP[8] = "HTTP/2 \0";
 const char SERVER_DETAILS[25] = "Server: NETMASTER/0.69\0";
 // image/x-icon\r\n"; //application/octet-stream // text/x-c; charset=UTF-8 // image/png
 const char CONTENT_TYPE[15] = "Content-Type: \0";
 const char CONTENT_LENGTH[17] = "Content-Length: \0";
-const char CLOSE_GET_POST[22] = "Connection: close\0";
+const char CLOSE_GET_POST[18] = "Connection: close\0";
                               // 0          0                            0                                    
 const char FILE_EXT[9][6] = {".html\0", ".htm\0", ".js\0", ".css\0", ".txt\0", ".png\0", ".jpg\0", ".jpge\0", ".ico\0"};
-const char CONT_TYP[12][25] = {"html; charset=utf-8\0", "htm\0", "application/javascript\0", "css\0", "text; charset=utf-8\0", "png\0", "jpg\0", "jpge\0", "x-icon\0", "application/octet-stream\0","image/\0", "text/\0"};
-const int CONT_TYP_LEN[12] = {20, 4, 11, 4, 20, 4, 4, 5, 7, 25, 7};
+                                
+char CONT_TYPE_HTML[CONT_TYP_LEN_HTML + 1] = "text/html; charset=utf-8\0";
+char CONT_TYPE_JS[CONT_TYP_LEN_JS + 1] = "application/javascript\0";
+char CONT_TYPE_CSS[CONT_TYP_LEN_CSS + 1] = "text/css; charset=utf-8\0";
+char CONT_TYPE_TXT[CONT_TYP_LEN_TXT + 1] = "text/plain; charset=utf-8\0";
+char CONT_TYPE_PNG[CONT_TYP_LEN_PNG + 1] = "image/png\0";
+char CONT_TYPE_JPG[CONT_TYP_LEN_JPG + 1] = "image/jpg\0";
+char CONT_TYPE_JPGE[CONT_TYP_LEN_JPGE + 1] = "image/jpge\0";
+char CONT_TYPE_ICON[CONT_TYP_LEN_ICON + 1] = "image/x-icon\0";
+char CONT_TYPE_APP_OCT_STR[CONT_TYP_LEN_APP_OCT_STR + 1] = "application/octet-stream\0";
 
 int getFileType(char * file_name){
     for (int i = 0; i <= OCTET_STREAM; i++){
@@ -22,62 +30,56 @@ int getFileType(char * file_name){
 }
 
 void buildContTypeHeader(int index, int client_socket){
-    write(client_socket, CONTENT_TYPE, 15);
+    write(client_socket, CONTENT_TYPE, 14);
     switch (index){
 
     case HTML:
-        write(client_socket, CONT_TYP[11], CONT_TYP_LEN[11]);
-        write(client_socket, CONT_TYP[HTML], CONT_TYP_LEN[HTML]);
+        write(client_socket, CONT_TYPE_HTML, CONT_TYP_LEN_HTML);
         write(client_socket, EOHL, 2);
         break;
 
     case HTM:
-        write(client_socket, CONT_TYP[11], CONT_TYP_LEN[11]);
-        write(client_socket, CONT_TYP[HTML], CONT_TYP_LEN[HTML]);
+        write(client_socket, CONT_TYPE_HTML, CONT_TYP_LEN_HTML);
         write(client_socket, EOHL, 2);
         break;
 
     case JS:
-        // printf("->>>> %s\n", CONT_TYP[JS]);
-        // write(client_socket, CONT_TYP[JS],  CONT_TYP_LEN[JS]);
-        write(client_socket, "application/javascript\0", 22);
+        write(client_socket, CONT_TYPE_JS, CONT_TYP_LEN_JS);
+        write(client_socket, EOHL, 2);
+        break;
+
+    case CSS:
+        write(client_socket, CONT_TYPE_CSS, CONT_TYP_LEN_CSS);
         write(client_socket, EOHL, 2);
         break;
 
     case IMAGE_PNG:
-        write(client_socket, CONT_TYP[10], CONT_TYP_LEN[10]);
-        write(client_socket, CONT_TYP[IMAGE_PNG], CONT_TYP_LEN[IMAGE_PNG]);
+        write(client_socket, CONT_TYPE_PNG, CONT_TYP_LEN_PNG);
         write(client_socket, EOHL, 2);
         break;
 
     case IMAGE_JPG:
-        write(client_socket, CONT_TYP[10], CONT_TYP_LEN[10]);
-        write(client_socket, CONT_TYP[IMAGE_JPG], CONT_TYP_LEN[IMAGE_JPG]);
+        write(client_socket, CONT_TYPE_JPG, CONT_TYP_LEN_JPG);
         write(client_socket, EOHL, 2);
         break;
 
     case IMAGE_JPGE:
-        write(client_socket, CONT_TYP[10], CONT_TYP_LEN[10]);
-        write(client_socket, CONT_TYP[IMAGE_JPGE], CONT_TYP_LEN[IMAGE_JPGE]);
+        write(client_socket, CONT_TYPE_JPGE, CONT_TYP_LEN_JPGE);
         write(client_socket, EOHL, 2);
         break;
 
     case IMAGE_ICO:
-        write(client_socket, CONT_TYP[10], CONT_TYP_LEN[10]);
-        write(client_socket, CONT_TYP[IMAGE_ICO], CONT_TYP_LEN[IMAGE_ICO]);
+        write(client_socket, CONT_TYPE_ICON, CONT_TYP_LEN_ICON);
         write(client_socket, EOHL, 2);
         break;
     
     case TEXT:
-        // write(client_socket, CONT_TYP[12], CONT_TYP_LEN[12]);
-        write(client_socket, "text/\0", 6);
-        write(client_socket, CONT_TYP[TEXT], CONT_TYP_LEN[TEXT]);
+        write(client_socket, CONT_TYPE_TXT, CONT_TYP_LEN_TXT);
         write(client_socket, EOHL, 2);
         break;
 
     case OCTET_STREAM:
-        write(client_socket, CONT_TYP[10], CONT_TYP_LEN[10]);
-        write(client_socket, CONT_TYP[IMAGE_ICO], CONT_TYP_LEN[IMAGE_ICO]);
+        write(client_socket, CONT_TYPE_APP_OCT_STR, CONT_TYP_LEN_APP_OCT_STR);
         write(client_socket, EOHL, 2);
         break;
     }
@@ -102,22 +104,26 @@ void sendResponse(int client_socket, SERVER_ROOT * server_data, char * file_name
 }
 
 void headerSender(int client_socket, char * file_name, long int fsize, int status_code){
-    
+    char fsize_str[10];
+    memcpy(fsize_str, itoa(fsize, 10), strlen(itoa(fsize, 10)));
+    // itoa(fsize, 10);
+    // printf("---> %s\n", itoa(fsize, 10));
+    printf("---> %s\n", fsize_str);
     write(client_socket, RESPONSE_HTTP, 7);
 
     if (status_code == OK){
-        write(client_socket, HeaderErrNoStatusCode(status_code), OK_Len);
+        write(client_socket, HeaderErrNoStatusCode(status_code), OK_Len - 1);
         write(client_socket, EOHL, 2);
         buildContTypeHeader(getFileType(file_name), 1);
 
-        // write(client_socket, CONTENT_LENGTH, 17);
-        // write(client_socket, &fsize, sizeof(fsize));
-        // write(client_socket, EOHL, 2);
+        write(client_socket, CONTENT_LENGTH, 17);
+        write(client_socket, fsize_str, strlen(fsize_str));
+        write(client_socket, EOHL, 2);
         
-        write(client_socket, SERVER_DETAILS, 25);
+        write(client_socket, SERVER_DETAILS, 22);
         write(client_socket, EOHL, 2);
 
-        write(client_socket, CLOSE_GET_POST, 22);
+        write(client_socket, CLOSE_GET_POST, 17);
     }
     
     write(client_socket, EOH, 4);

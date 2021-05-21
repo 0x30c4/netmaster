@@ -1,5 +1,19 @@
 #include "../include/stringlib.h"
 
+char* itoa(long int val, int base){
+	
+	static char buf[32] = {0};
+	
+	int i = 30;
+	
+	for(; val && i ; --i, val /= base)
+	
+		buf[i] = "0123456789abcdef"[val % base];
+	
+	return &buf[i+1];
+	
+}
+
 // checks if a string ends with a special pattern of characters or sub-string
 int endsWith(const char *str, const char *subend){
 	int _str_len = strlen(str);

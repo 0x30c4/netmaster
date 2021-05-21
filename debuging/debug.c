@@ -16,5 +16,6 @@ int main(int argc, char const *argv[]){
 
 	SlaveHandler(0, &server_data);
 
+	close(1);
 	return 0;
 }

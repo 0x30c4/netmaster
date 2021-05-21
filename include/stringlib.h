@@ -4,6 +4,7 @@
 #include "common.h"
 #include "err.h"
 
+char *itoa(long int val, int base);
 int endsWith(const char *, const char *);
 int startsWith(const char *, const char *);
 char **split(const char *, const char *, int *);
