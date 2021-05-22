@@ -74,7 +74,7 @@ int PathChecker(const char * path, char * req_file, long int *fsize, SERVER_ROOT
 
 	if (stat(req_file, &fileStat) == -1){
 		fprintf(stderr, "%s | %d\n", strerror(errno), errno);
-		if (errno == 20) return Not_Found;
+		if (errno == 2) return Not_Found;
 	}
 	
 	// check if the file or directory is readable 

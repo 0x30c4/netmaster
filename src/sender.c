@@ -130,7 +130,10 @@ void headerSender(int client_socket, char * file_name, long int fsize, int statu
 }
 
 void sendErrPage(int client_socket, int retcode){
-    printf("ERR\n");
+    write(client_socket, "<title>ERROR!!</title>", 22);
+    write(client_socket, "<h1 align='center'>", 19);
+    write(client_socket, HeaderErrNo(retcode), ERR_STATUS_MSG_LEN[retcode]);
+    write(client_socket, "</h1>", 5);
 }
 
 void *fileSender(int client_socket, const char *filename){

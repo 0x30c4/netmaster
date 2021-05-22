@@ -22,7 +22,7 @@
 // status code len
 #define OK_Len                    	6  // 200  every thing is ok
 #define Bad_Request_Len 			15 // 400  bad request/malformed request 
-#define Not_Found_Len 				16 // 404  not exist
+#define Not_Found_Len 				13 // 404  not exist
 #define Forbidden_Len				13 // 403  file is not owned by server starting user.
 #define Unauthorized_Len   			15 // 401  not authorized to get the content.
 #define Not_Acceptable_Len			18 // 406  not send this to the client.
