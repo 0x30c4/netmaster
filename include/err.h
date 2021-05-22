@@ -20,15 +20,14 @@
 #define Internal_Server_Error   7 // 500  server error
 
 // status code len
-#define OK_Len                    	7  // 200  every thing is ok
-#define Bad_Request_Len 			16 // 400  bad request/malformed request 
-#define Not_Found_Len 				17 // 404  not exist
-#define Forbidden_Len				14 // 403  file is not owned by server starting user.
-#define Unauthorized_Len   			16 // 401  not authorized to get the content.
-#define Not_Acceptable_Len			19 // 406  not send this to the client.
-#define Request_URI_Too_long_Len    17 // 414  Request-URI Too Long
-#define Internal_Server_Error_Len   26 // 500  server error
-
+#define OK_Len                    	6  // 200  every thing is ok
+#define Bad_Request_Len 			15 // 400  bad request/malformed request 
+#define Not_Found_Len 				16 // 404  not exist
+#define Forbidden_Len				13 // 403  file is not owned by server starting user.
+#define Unauthorized_Len   			15 // 401  not authorized to get the content.
+#define Not_Acceptable_Len			18 // 406  not send this to the client.
+#define Request_URI_Too_long_Len    16 // 414  Request-URI Too Long
+#define Internal_Server_Error_Len   25 // 500  server error
 
 #define CHECK(X) ({int __val = (X);(__val == -1 ? \
                     ({ fprintf(stderr, "ERROR (" __FILE__ ": %d ) -- %s \n", __LINE__, strerror(errno));\
@@ -47,4 +46,8 @@ void print_usage(const char *PN);
 int port_parser(char *p);
 char *HeaderErrNo(int err);
 char *HeaderErrNoStatusCode(int err);
+
+extern int ERR_STATUS_CODE_LEN[9];
+extern int ERR_STATUS_MSG_LEN[9];
+
 #endif

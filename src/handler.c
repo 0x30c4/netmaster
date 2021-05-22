@@ -15,19 +15,12 @@ int SlaveHandler(int fd, SERVER_ROOT * server_data){
 			if (header_no == 0){
 				retCode = GetParser(header, server_data, path);
 				sendResponse(1, server_data, path);
-				// PathChecker(path, header, server_data);
-				// printf("%s\n", header);
             }
-			/* else */
-			/* 	retCode = ParseHeader(header, headerLineLen); */
-
 			if (retCode != OK){
 				fprintf(stderr, "HEADER ERROR!| No: %ld| Err: %d | %s | [ %s ] | len : %d\n", header_no, retCode, HeaderErrNoStatusCode(retCode), header, headerLineLen);
 				break;
 			}
-            // printf("%s", header);
 		}
-		// bzero(header, MAX_HEADER);
 		header_no++;
 	}
 	free(header);

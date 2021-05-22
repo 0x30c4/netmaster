@@ -98,48 +98,46 @@ void sendResponse(int client_socket, SERVER_ROOT * server_data, char * file_name
 
     headerSender(client_socket, full_path, fsize, retcode);
 
-    fileSender(client_socket, full_path);
+    if (retcode == OK)
+        fileSender(client_socket, full_path);
+    else
+        sendErrPage(client_socket, retcode);
 
     free(full_path);
 }
 
 void headerSender(int client_socket, char * file_name, long int fsize, int status_code){
-    char fsize_str[10];
-    memcpy(fsize_str, itoa(fsize, 10), strlen(itoa(fsize, 10)));
-    // itoa(fsize, 10);
-    // printf("---> %s\n", itoa(fsize, 10));
-    printf("---> %s\n", fsize_str);
+    
     write(client_socket, RESPONSE_HTTP, 7);
+    write(client_socket, HeaderErrNoStatusCode(status_code), ERR_STATUS_CODE_LEN[status_code]);
+    write(client_socket, EOHL, 2);
 
     if (status_code == OK){
-        write(client_socket, HeaderErrNoStatusCode(status_code), OK_Len - 1);
-        write(client_socket, EOHL, 2);
-        buildContTypeHeader(getFileType(file_name), 1);
-
-        write(client_socket, CONTENT_LENGTH, 17);
-        write(client_socket, fsize_str, strlen(fsize_str));
-        write(client_socket, EOHL, 2);
-        
-        write(client_socket, SERVER_DETAILS, 22);
-        write(client_socket, EOHL, 2);
-
-        write(client_socket, CLOSE_GET_POST, 17);
+        buildContTypeHeader(getFileType(file_name), client_socket);
+        // write(client_socket, CONTENT_LENGTH, 17);
+        // write(client_socket, &fsize, sizeof(fsize));
+        // write(client_socket, EOHL, 2);
+    }else {
+        buildContTypeHeader(HTML, client_socket);
     }
     
+    write(client_socket, SERVER_DETAILS, 22);
+    write(client_socket, EOHL, 2);
+
+    write(client_socket, CLOSE_GET_POST, 17);
     write(client_socket, EOH, 4);
     
 }
 
+void sendErrPage(int client_socket, int retcode){
+    printf("ERR\n");
+}
+
 void *fileSender(int client_socket, const char *filename){
     int file_fd = open(filename, O_RDONLY);
-
-    // printf("223\n");
     char c;
-    // printf("%d | %d\n", read(file_fd, &c, 1), file_fd);
     while ((read(file_fd, &c, 1)) > 0)
         write(client_socket, &c, 1);
-    
-    // write(client_socket, &"a", 1);
 
     close(file_fd);
     return NULL;

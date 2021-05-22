@@ -1,13 +1,13 @@
 #include "../include/err.h"
 
-char STATUS_CODE_OK[OK_Len] = "200 OK\0";
-char STATUS_CODE_Bad_Request[Bad_Request_Len] = "400 Bad Request\0";
-char STATUS_CODE_Unauthorized[Unauthorized_Len] = "401 Unauthorized\0";
-char STATUS_CODE_Forbidden[Forbidden_Len] = "403 Forbidden\0";
-char STATUS_CODE_Not_Found[Not_Found_Len] = "404 Not Found\0";
-char STATUS_CODE_Not_Acceptable[Not_Acceptable_Len] = "406 Not Acceptable\0";
-char STATUS_CODE_Request_URI_Too_long[Request_URI_Too_long_Len] = "414 Too Long URI\0";
-char STATUS_CODE_Internal_Server_Error[Internal_Server_Error_Len] = "500 Internal Server Error\0";
+char STATUS_CODE_OK[OK_Len + 1] = "200 OK\0";
+char STATUS_CODE_Bad_Request[Bad_Request_Len + 1] = "400 Bad Request\0";
+char STATUS_CODE_Unauthorized[Unauthorized_Len + 1] = "401 Unauthorized\0";
+char STATUS_CODE_Forbidden[Forbidden_Len + 1] = "403 Forbidden\0";
+char STATUS_CODE_Not_Found[Not_Found_Len + 1] = "404 Not Found\0";
+char STATUS_CODE_Not_Acceptable[Not_Acceptable_Len + 1] = "406 Not Acceptable\0";
+char STATUS_CODE_Request_URI_Too_long[Request_URI_Too_long_Len + 1] = "414 Too Long URI\0";
+char STATUS_CODE_Internal_Server_Error[Internal_Server_Error_Len + 1] = "500 Internal Server Error\0";
 
 char STATUS_MSG_OK[22] = "Every thing is ok :-)\0";
 char STATUS_MSG_Bad_Request[14] = "Bad request!!\0";
@@ -17,6 +17,10 @@ char STATUS_MSG_Not_Found[28] = "Can't locate the resource:/\0";
 char STATUS_MSG_Not_Acceptable[28] = "Request is not acceptable:/\0";
 char STATUS_MSG_Request_URI_Too_long[23] = "Request-URI Too Long:/\0";
 char STATUS_MSG_Internal_Server_Error[24] = "Internal Server Error:/\0";
+
+
+int ERR_STATUS_CODE_LEN[9] = {OK_Len, Bad_Request_Len, Not_Found_Len, Forbidden_Len, Unauthorized_Len, Not_Acceptable_Len, Request_URI_Too_long_Len, Internal_Server_Error_Len};
+int ERR_STATUS_MSG_LEN[9] = {22, 14, 24, 29, 28, 28, 23, 24};
 
 char *HeaderErrNo(int err){
     switch (err){

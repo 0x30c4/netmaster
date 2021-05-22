@@ -21,4 +21,5 @@ void *fileSender(int, const char *);
 void headerSender(int, char *, long int, int);
 int getFileType(char * );
 void buildContTypeHeader(int, int);
+void sendErrPage(int, int);
 #endif
