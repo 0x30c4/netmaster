@@ -22,7 +22,7 @@ buildtest: clean debug.o common.o err.o handler.o headerparser.o sender.o string
 	$(CC) $(OBJ)/debug.o $(OBJ)/common.o $(OBJ)/err.o $(OBJ)/handler.o $(OBJ)/headerparser.o $(OBJ)/sender.o $(OBJ)/stringlib.o -o $(BIN)/$(EXE)
 
 runtest: buildtest
-	echo -e "\n----------------------------------------------\n"
+	echo -e "\n----------------------------------------------\n" 
 	./$(BIN)/$(EXE) < $(DEBUG)/header.data
 
 runtest_nc: buildtest
