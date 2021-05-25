@@ -96,7 +96,7 @@ void sendResponse(int client_socket, SERVER_ROOT * server_data, char * file_name
     // printf("--> %s\n", CONT_TYP[getFileType(full_path)]);
     // printf("----> %ld\n", fsize);
 
-    headerSender(client_socket, full_path, fsize, retcode);
+    headerSender(client_socket, full_path, &fsize, retcode);
 
     if (retcode == OK)
         fileSender(client_socket, full_path);
@@ -106,17 +106,20 @@ void sendResponse(int client_socket, SERVER_ROOT * server_data, char * file_name
     free(full_path);
 }
 
-void headerSender(int client_socket, char * file_name, long int fsize, int status_code){
-    
+void headerSender(int client_socket, char * file_name, long int *fsize, int status_code){
+    char *fsize_str = itoa(*fsize, 10);
+
+    // printf("%s\n", fsize_str);
+
     write(client_socket, RESPONSE_HTTP, 7);
     write(client_socket, HeaderErrNoStatusCode(status_code), ERR_STATUS_CODE_LEN[status_code]);
     write(client_socket, EOHL, 2);
 
     if (status_code == OK){
         buildContTypeHeader(getFileType(file_name), client_socket);
-        // write(client_socket, CONTENT_LENGTH, 17);
-        // write(client_socket, &fsize, sizeof(fsize));
-        // write(client_socket, EOHL, 2);
+        write(client_socket, CONTENT_LENGTH, 17);
+        write(client_socket, fsize_str, sizeof(fsize_str));
+        write(client_socket, EOHL, 2);
     }else {
         buildContTypeHeader(HTML, client_socket);
     }

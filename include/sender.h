@@ -18,7 +18,7 @@
 
 void sendResponse(int, SERVER_ROOT *, char *);
 void *fileSender(int, const char *);
-void headerSender(int, char *, long int, int);
+void headerSender(int, char *, long int *, int);
 int getFileType(char * );
 void buildContTypeHeader(int, int);
 void sendErrPage(int, int);

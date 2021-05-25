@@ -15,6 +15,9 @@ run:
 %.o: $(SRC)/%.c 
 	$(CC) $(CFLAGS) $^ -o $(OBJ)/$@
 
+iom: $(DEBUG)/iom.c
+	$(CC) -I$(INCLUDE)  $^ -o $(BIN)/iom
+
 buildtest: clean debug.o common.o err.o handler.o headerparser.o sender.o stringlib.o
 	$(CC) $(OBJ)/debug.o $(OBJ)/common.o $(OBJ)/err.o $(OBJ)/handler.o $(OBJ)/headerparser.o $(OBJ)/sender.o $(OBJ)/stringlib.o -o $(BIN)/$(EXE)
 
