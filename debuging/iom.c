@@ -17,29 +17,22 @@ int main(int argc, char *argv[]){
     timeout = 1000;
 
     while (1){
-        pollret = poll(fds, 1, timeout);
-
-    
-        char smallBuffer[10];
-        while (fgets(smallBuffer, sizeof(smallBuffer), stdin) != NULL)
-        {
-                if (strlen(smallBuffer) > 0)
-                {
-                            // Check if we got the whole line
-                            //         if (smallBuffer[strlen(smallBuffer) - 1] == '\n')
-                            //                 {
-                            //                             // Yes, we got the whole line
-                            //                                     }
-                            //                                             else
-                            //                                                     {
-                            //                                                                 // Whole line not read, there is still "excess" input
-                            //                                                                         }
-                            //                                                                             }
-                            //                                                                             }
-                            //                                                     }
-                            //                 }
-                }
-        }
+        printf("%c", getc(stdin));
     }
+    
+
+    // while (1){
+    //     // pollret = poll(fds, 1, timeout);
+    //     while (fgets(buf, sizeof(buf), stdin) != NULL){
+    //         if (strlen(buf) > 0){
+    //             // Check if we got the whole line
+    //             if (buf[strlen(buf) - 1] == '\n'){
+                    
+    //             }else{
+    //             }
+    //                 printf("%s", buf);
+    //         }
+    //     }
+    // }
     return 0;
 }
