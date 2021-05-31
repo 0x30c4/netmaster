@@ -175,7 +175,8 @@ ssize_t readCRLF(int fd, void *buffer){
     size_t totRead;                     /* Total bytes read so far */
     char *buf;
     char ch;
-
+	
+    
     if (MAX_HEADER <= 0 || buffer == NULL) {
         errno = EINVAL;
         return -1;
@@ -185,11 +186,13 @@ ssize_t readCRLF(int fd, void *buffer){
 
     totRead = 0;
 
+    printf("-----> readCRLF\n");
     bool prev_cr = FALSE;
     for (;;) {
         
         numRead = read(fd, &ch, 1);
-
+		
+        
         if (numRead == -1) {
             if (errno == EINTR)         /* Interrupted --> restart read() */
                 continue;
@@ -203,6 +206,7 @@ ssize_t readCRLF(int fd, void *buffer){
                 break;
 
         } else {                        /* 'numRead' must be 1 if we get here */
+            printf("-----> %s", buf);
             if (totRead < MAX_HEADER - 1) {      /* Discard > (n - 1) bytes */
                 totRead++;
                 *buf++ = ch;
@@ -221,7 +225,6 @@ ssize_t readCRLF(int fd, void *buffer){
         }
     }
     *buf = '\0';
-
     // printf("<< %d - <<< ", endsWith(buffer, "\r\n"));
     // if (((char *)buffer)[totRead] != '\n' || ((char *)buffer)[totRead-1] != '\r' )
     //     return MALFORMED_HADER;

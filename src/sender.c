@@ -141,10 +141,9 @@ void sendErrPage(int client_socket, int retcode){
 
 void *fileSender(int client_socket, const char *filename){
     int file_fd = open(filename, O_RDONLY);
-    char c;
+    char c; 
     while ((read(file_fd, &c, 1)) > 0)
         write(client_socket, &c, 1);
 
-    close(file_fd);
     return NULL;
 }

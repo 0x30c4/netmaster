@@ -79,7 +79,7 @@ int PathChecker(const char * path, char * req_file, long int *fsize, SERVER_ROOT
 	}
 	
 	// check if the file or directory is readable 
-	IF_FAIL_RET (!(fileStat.st_mode & S_IRUSR), Forbidden); 
+	// IF_FAIL_RET (!(fileStat.st_mode & S_IRUSR), Forbidden); 
 
 	// check if the file is a link 
 	IF_FAIL_RET (S_ISLNK(fileStat.st_mode), Forbidden); 
